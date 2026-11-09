@@ -5,12 +5,17 @@ import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 // Ses dosyaları: assets/sounds/music.wav (döngü müzik) ve flap.wav (kanat çırpma)
 const MUSIC_FILE = require('../../assets/sounds/music.wav');
-const FLAP_FILE = require('../../assets/sounds/flap.wav');
+// Birbirinden hafif farklı 3 kanat sesi: art arda çırpınca aynı ses tekrar etmez, daha doğal durur
+const FLAP_FILES = [
+  require('../../assets/sounds/flap.wav'),
+  require('../../assets/sounds/flap2.wav'),
+  require('../../assets/sounds/flap3.wav'),
+];
 
 const STORE_KEY = 'bf:sound';
 const MUSIC_VOLUME = 0.45; // seviye 5'teki gerçek ses (0-1)
-const FLAP_VOLUME = 0.9;   // seviye 5'teki gerçek ses (0-1)
-const FLAP_POOL = 3;       // art arda dokunuşlarda sesler üst üste binebilsin diye birkaç oynatıcı
+const FLAP_VOLUME = 0.8;   // seviye 5'teki gerçek ses (0-1)
+const FLAP_POOL = FLAP_FILES.length; // her ses için bir oynatıcı; art arda dokunuşlarda üst üste binebilir
 export const MAX_LEVEL = 5; // manuel ses seviyesi: 0 (sessiz) ... 5 (en yüksek)
 
 // music/sfx: sağ üstteki aç-kapa düğmeleri, musicLevel/sfxLevel: Ayarlar'daki 0-5 seviyesi
@@ -61,7 +66,7 @@ export async function initAudio() {
   try {
     music = createAudioPlayer(MUSIC_FILE);
     music.loop = true;
-    flaps = Array.from({ length: FLAP_POOL }, () => createAudioPlayer(FLAP_FILE));
+    flaps = FLAP_FILES.map((f) => createAudioPlayer(f));
     applyVolumes();
   } catch (e) {
     return; // ses yüklenemezse oyun sessiz çalışmaya devam eder

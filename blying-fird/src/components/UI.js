@@ -16,19 +16,23 @@ export const COLORS = {
   gray: ['#95a5a6', '#5f6f70'],
 };
 
-export function Button({ title, onPress, color = 'orange', small, style }) {
+// Tüm düğmeler aynı boyutta ve aynı yazı büyüklüğünde: hap şeklinde, üstte ince ışık şeridi, altta koyu kenar.
+// `small` parametresi eski çağrılar bozulmasın diye kabul edilir ama artık boyutu değiştirmez.
+export function Button({ title, onPress, color = 'orange', style }) {
   const [bg, dark] = COLORS[color] || COLORS.orange;
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.btn,
-        small && styles.btnSmall,
-        { backgroundColor: bg, borderBottomColor: dark, borderBottomWidth: pressed ? 3 : 7, marginTop: pressed ? 4 : 0 },
-        style,
-      ]}
-    >
-      <Text style={[styles.btnText, small && { fontSize: 18 }]}>{title}</Text>
+    <Pressable onPress={onPress} style={[styles.btnWrap, style]}>
+      {({ pressed }) => (
+        <View
+          style={[
+            styles.btn,
+            { backgroundColor: bg, borderBottomColor: dark, borderBottomWidth: pressed ? 2 : 6, transform: [{ translateY: pressed ? 4 : 0 }] },
+          ]}
+        >
+          <View pointerEvents="none" style={styles.shine} />
+          <Text style={styles.btnText} numberOfLines={1}>{title}</Text>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -120,8 +124,9 @@ export function Backdrop({ themeId, dim = 0.12 }) {
 
 const styles = StyleSheet.create({
   round: { backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
-  btn: { width: '100%', paddingVertical: 15, borderRadius: 20, alignItems: 'center', marginBottom: 12 },
-  btnSmall: { paddingVertical: 10, borderRadius: 16 },
-  btnText: { color: '#fff', fontSize: 22, fontWeight: '800', textShadowColor: 'rgba(0,0,0,0.3)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 2 },
+  btnWrap: { width: '100%', height: 64, marginBottom: 10 },
+  btn: { height: 58, borderRadius: 29, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  shine: { position: 'absolute', top: 0, left: 0, right: 0, height: '48%', backgroundColor: 'rgba(255,255,255,0.18)' },
+  btnText: { color: '#fff', fontSize: 20, fontWeight: '800', letterSpacing: 0.6, textShadowColor: 'rgba(0,0,0,0.28)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
   panel: { width: '100%', backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 24, padding: 18, alignItems: 'center' },
 });
