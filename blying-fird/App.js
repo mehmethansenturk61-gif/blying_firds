@@ -6,6 +6,7 @@ import { getTheme } from './src/constants/themes';
 import { loadProfile, saveProfileField } from './src/storage/storage';
 import { initAudio } from './src/audio/sound';
 import NicknameScreen from './src/screens/NicknameScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ModeScreen from './src/screens/ModeScreen';
 import CharacterScreen from './src/screens/CharacterScreen';
@@ -46,10 +47,13 @@ export default function App() {
           <NicknameScreen
             profile={profile}
             editing={!!profile.nickname}
-            onSave={(n) => { update('nickname', n); toMenu(); }}
-            onCancel={toMenu}
+            onSave={(n) => { update('nickname', n); setScreen(profile.nickname ? 'settings' : 'menu'); }}
+            onCancel={() => setScreen(profile.nickname ? 'settings' : 'menu')}
           />
         );
+        break;
+      case 'settings':
+        content = <SettingsScreen profile={profile} onChangeNickname={() => setScreen('nickname')} onBack={toMenu} />;
         break;
       case 'mode':
         content = <ModeScreen profile={profile} onBack={toMenu} onStart={(m) => { setMode(m); setRunId((r) => r + 1); setScreen('game'); }} />;

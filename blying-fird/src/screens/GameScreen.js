@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { View, Text, Pressable, Platform, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Platform, Animated, StyleSheet } from 'react-native';
 import Svg, { G } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
 import Branch from '../components/Branch';
@@ -21,9 +21,31 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const [result, setResult] = useState(null);
   const [best, setBest] = useState(0);
   const saved = useRef(false);
+  // Çıkış onayı: 'none' | 'confirm' (soru) | 'count' (devam etmeden önce 3-2-1)
+  const [ui, setUi] = useState('none');
+  const [count, setCount] = useState(3);
+  const paused = useRef(false);
+
+  const askExit = () => {
+    if (g.current.phase === 'over') { onExit(); return; }
+    paused.current = true;
+    setUi('confirm');
+  };
+  const cancelExit = () => { setCount(3); setUi('count'); };
+
+  // İptal sonrası 3 → 2 → 1 say, sonra oyuna devam et
+  useEffect(() => {
+    if (ui !== 'count') return undefined;
+    const id = setTimeout(() => {
+      if (count > 1) setCount((c) => c - 1);
+      else { setUi('none'); paused.current = false; }
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [ui, count]);
 
   // Kanat çırp: oyun başlamış/oynanıyorsa kanat sesi de çalar
   const doFlap = () => {
+    if (paused.current) return; // duraklatılmışken (çıkış sorusu / geri sayım) dokunuşlar sayılmaz
     flap(g.current);
     if (g.current.phase === 'playing') playFlap();
   };
@@ -41,7 +63,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       if (last === null) last = ts;
       const dt = Math.min((ts - last) / 1000, L.MAX_DT);
       last = ts;
-      update(g.current, dt);
+      if (!paused.current) update(g.current, dt);
       force();
       if (g.current.phase === 'over') { finish(); return; }
       raf = requestAnimationFrame(loop);
@@ -104,7 +126,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
         <Text style={styles.record}>Rekor: {Math.max(best, game.score)}</Text>
         {maxLives > 1 ? <View style={{ marginTop: 4 }}><Hearts lives={game.lives} max={maxLives} size={26} /></View> : null}
       </View>
-      <Pressable onPress={onExit} style={[styles.exit, { top: TOP_INSET + 4 }]}>
+      <Pressable onPress={askExit} style={[styles.exit, { top: TOP_INSET + 4 }]}>
         <Text style={styles.exitText}>✕</Text>
       </Pressable>
       <SoundControls vertical style={{ position: 'absolute', left: 14, top: TOP_INSET + 52 }} />
@@ -131,7 +153,44 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
           </Panel>
         </View>
       ) : null}
+
+      {ui === 'confirm' ? (
+        <View style={styles.overlay}>
+          <Panel style={{ maxWidth: 360 }}>
+            <Text style={styles.confirmTitle}>Gerçekten çıkmak istiyor musunuz?</Text>
+            <View style={styles.confirmRow}>
+              <View style={{ flex: 1, marginRight: 6 }}>
+                <Button title="Evet" color="red" onPress={onExit} style={{ marginBottom: 0 }} />
+              </View>
+              <View style={{ flex: 1, marginLeft: 6 }}>
+                <Button title="İptal Et" color="green" onPress={cancelExit} style={{ marginBottom: 0 }} />
+              </View>
+            </View>
+          </Panel>
+        </View>
+      ) : null}
+
+      {ui === 'count' ? <Countdown value={count} /> : null}
     </Pressable>
+  );
+}
+
+const COUNT_COLORS = { 3: '#ffd23f', 2: '#ff9f1c', 1: '#2ecc71' };
+
+// Büyük rakam yakınlaşarak belirir, küçülüp silinir
+function Countdown({ value }) {
+  const a = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    a.setValue(0);
+    Animated.timing(a, { toValue: 1, duration: 900, useNativeDriver: Platform.OS !== 'web' }).start();
+  }, [value]);
+  const scale = a.interpolate({ inputRange: [0, 0.25, 1], outputRange: [2.4, 1, 0.75] });
+  const opacity = a.interpolate({ inputRange: [0, 0.15, 0.7, 1], outputRange: [0, 1, 1, 0] });
+  return (
+    <View pointerEvents="none" style={styles.countWrap}>
+      <Animated.Text style={[styles.countText, { color: COUNT_COLORS[value] || '#fff', opacity, transform: [{ scale }] }]}>{value}</Animated.Text>
+      <Text style={styles.countHint}>Hazır ol!</Text>
+    </View>
   );
 }
 
@@ -148,6 +207,11 @@ const styles = StyleSheet.create({
   hintText: { fontSize: 26, fontWeight: '900', color: '#fff', ...shadow },
   hintSub: { fontSize: 15, fontWeight: '700', color: '#fff', marginTop: 4, ...shadow },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  confirmTitle: { fontSize: 24, fontWeight: '900', color: '#3b2a5a', textAlign: 'center', marginBottom: 18 },
+  confirmRow: { flexDirection: 'row', width: '100%' },
+  countWrap: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
+  countText: { fontSize: 150, fontWeight: '900', textShadowColor: 'rgba(0,0,0,0.55)', textShadowOffset: { width: 0, height: 6 }, textShadowRadius: 4 },
+  countHint: { fontSize: 22, fontWeight: '900', color: '#fff', marginTop: 4, ...shadow },
   overTitle: { fontSize: 34, fontWeight: '900', color: '#c0392b' },
   label: { fontSize: 16, fontWeight: '800', color: '#777', marginTop: 8 },
   big: { fontSize: 64, fontWeight: '900', color: '#3b2a5a', lineHeight: 70 },

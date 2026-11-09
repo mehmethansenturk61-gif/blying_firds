@@ -93,12 +93,12 @@ export function SoundButton({ kind, on, onPress, size = 40 }) {
 
 // Müzik + efekt düğmeleri (ayarlar telefonda hatırlanır)
 export function SoundControls({ vertical, style }) {
-  const { music, sfx } = useSoundSettings();
+  const { music, sfx, musicLevel, sfxLevel } = useSoundSettings();
   return (
     <View style={[{ flexDirection: vertical ? 'column' : 'row' }, style]}>
-      <SoundButton kind="music" on={music} onPress={toggleMusic} />
+      <SoundButton kind="music" on={music && musicLevel > 0} onPress={toggleMusic} />
       <View style={{ width: 8, height: 8 }} />
-      <SoundButton kind="sfx" on={sfx} onPress={toggleSfx} />
+      <SoundButton kind="sfx" on={sfx && sfxLevel > 0} onPress={toggleSfx} />
     </View>
   );
 }

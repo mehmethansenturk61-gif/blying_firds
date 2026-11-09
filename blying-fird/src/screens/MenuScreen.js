@@ -19,7 +19,7 @@ export default function MenuScreen({ profile, go }) {
           <Button title="Karakter Seç" color="blue" onPress={() => go('character')} />
           <Button title="Arka Plan Seç" color="purple" onPress={() => go('background')} />
           <Button title="Skor Tablosu" color="orange" onPress={() => go('leaderboard')} />
-          <Button title="Ayarlar · Takma Adı Değiştir" color="gray" small onPress={() => go('nickname')} />
+          <Button title="Ayarlar" color="gray" small onPress={() => go('settings')} />
         </View>
       </ScrollView>
       <SoundControls style={{ position: 'absolute', right: 14, top: TOP_INSET + 4 }} />
