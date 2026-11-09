@@ -4,11 +4,12 @@ import Svg, { G } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
 import Branch from '../components/Branch';
 import { BirdArt } from '../components/Birds';
-import { Button, Hearts, Panel } from '../components/UI';
+import { Button, Hearts, Panel, SoundControls } from '../components/UI';
 import { useFrame } from '../components/FrameContext';
 import { BALANCE as B, LAYOUT as L, MODES, WORLD_H, TOP_INSET } from '../constants/config';
 import { createGame, update, flap, gapCenter } from '../game/engine';
 import { saveResult, getScores } from '../storage/storage';
+import { playFlap } from '../audio/sound';
 
 export default function GameScreen({ mode, character, theme, onExit, onRestart }) {
   const { w, h } = useFrame();
@@ -20,6 +21,12 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const [result, setResult] = useState(null);
   const [best, setBest] = useState(0);
   const saved = useRef(false);
+
+  // Kanat çırp: oyun başlamış/oynanıyorsa kanat sesi de çalar
+  const doFlap = () => {
+    flap(g.current);
+    if (g.current.phase === 'playing') playFlap();
+  };
 
   // Oyun döngüsü: requestAnimationFrame + delta time
   useEffect(() => {
@@ -52,7 +59,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
     const onKey = (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
-        if (!e.repeat) flap(g.current);
+        if (!e.repeat) doFlap();
       }
     };
     window.addEventListener('keydown', onKey);
@@ -68,7 +75,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const over = game.phase === 'over';
 
   return (
-    <Pressable style={[styles.root, Platform.OS === 'web' ? { touchAction: 'manipulation', userSelect: 'none' } : null]} onPressIn={() => flap(g.current)}>
+    <Pressable style={[styles.root, Platform.OS === 'web' ? { touchAction: 'manipulation', userSelect: 'none' } : null]} onPressIn={doFlap}>
       <SceneBack theme={theme} w={w} h={h} scroll={game.scroll} />
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Svg width={w} height={h} viewBox={`0 0 ${W} ${WORLD_H}`}>
@@ -100,6 +107,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       <Pressable onPress={onExit} style={[styles.exit, { top: TOP_INSET + 4 }]}>
         <Text style={styles.exitText}>✕</Text>
       </Pressable>
+      <SoundControls vertical style={{ position: 'absolute', left: 14, top: TOP_INSET + 52 }} />
 
       {game.phase === 'ready' ? (
         <View pointerEvents="none" style={styles.hint}>

@@ -1,10 +1,11 @@
 import React from 'react';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { useFrame } from './FrameContext';
 import useTicker from '../hooks/useTicker';
 import { SceneBack, SceneGround } from './Scenes';
 import { getTheme } from '../constants/themes';
+import { useSoundSettings, toggleMusic, toggleSfx } from '../audio/sound';
 
 export const COLORS = {
   orange: ['#ff9f1c', '#c46a00'],
@@ -67,6 +68,41 @@ export function Hearts({ lives, max, size = 26 }) {
   );
 }
 
+// Yuvarlak ses düğmesi: kind='music' (müzik) veya 'sfx' (kanat sesi vb. efektler). Kapalıyken üstü çizilir.
+export function SoundButton({ kind, on, onPress, size = 40 }) {
+  return (
+    <Pressable onPress={onPress} hitSlop={6} style={[styles.round, { width: size, height: size, borderRadius: size / 2 }]}>
+      <Svg width={size * 0.58} height={size * 0.58} viewBox="0 0 24 24" opacity={on ? 1 : 0.7}>
+        {kind === 'music' ? (
+          <>
+            <Path d="M9 18V6l11-2v12" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
+            <Circle cx={6.5} cy={18} r={3} fill="#fff" />
+            <Circle cx={17.5} cy={16} r={3} fill="#fff" />
+          </>
+        ) : (
+          <>
+            <Path d="M4 9v6h4l5 4V5L8 9z" fill="#fff" />
+            <Path d="M16 9.5a4 4 0 010 5M18.5 7a7.5 7.5 0 010 10" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+          </>
+        )}
+        {!on ? <Path d="M3 3L21 21" stroke="#ff5d73" strokeWidth={2.8} strokeLinecap="round" /> : null}
+      </Svg>
+    </Pressable>
+  );
+}
+
+// Müzik + efekt düğmeleri (ayarlar telefonda hatırlanır)
+export function SoundControls({ vertical, style }) {
+  const { music, sfx } = useSoundSettings();
+  return (
+    <View style={[{ flexDirection: vertical ? 'column' : 'row' }, style]}>
+      <SoundButton kind="music" on={music} onPress={toggleMusic} />
+      <View style={{ width: 8, height: 8 }} />
+      <SoundButton kind="sfx" on={sfx} onPress={toggleSfx} />
+    </View>
+  );
+}
+
 // Kayan arka plan (menü ekranları için)
 export function Backdrop({ themeId, dim = 0.12 }) {
   const { w, h } = useFrame();
@@ -83,6 +119,7 @@ export function Backdrop({ themeId, dim = 0.12 }) {
 }
 
 const styles = StyleSheet.create({
+  round: { backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
   btn: { width: '100%', paddingVertical: 15, borderRadius: 20, alignItems: 'center', marginBottom: 12 },
   btnSmall: { paddingVertical: 10, borderRadius: 16 },
   btnText: { color: '#fff', fontSize: 22, fontWeight: '800', textShadowColor: 'rgba(0,0,0,0.3)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 2 },

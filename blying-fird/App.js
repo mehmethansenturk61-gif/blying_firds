@@ -4,6 +4,7 @@ import { FrameContext } from './src/components/FrameContext';
 import { LAYOUT } from './src/constants/config';
 import { getTheme } from './src/constants/themes';
 import { loadProfile, saveProfileField } from './src/storage/storage';
+import { initAudio } from './src/audio/sound';
 import NicknameScreen from './src/screens/NicknameScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import ModeScreen from './src/screens/ModeScreen';
@@ -21,6 +22,8 @@ export default function App() {
   const [screen, setScreen] = useState('menu');
   const [mode, setMode] = useState('single');
   const [runId, setRunId] = useState(0);
+
+  useEffect(() => { initAudio(); }, []);
 
   useEffect(() => {
     loadProfile().then((p) => {

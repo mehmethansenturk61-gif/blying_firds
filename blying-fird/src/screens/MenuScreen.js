@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Backdrop, Button, Logo } from '../components/UI';
+import { Backdrop, Button, Logo, SoundControls } from '../components/UI';
 import { BirdIcon } from '../components/Birds';
 import { useFrame } from '../components/FrameContext';
 import { TOP_INSET } from '../constants/config';
@@ -10,7 +10,7 @@ export default function MenuScreen({ profile, go }) {
   return (
     <View style={{ flex: 1 }}>
       <Backdrop themeId={profile.background} />
-      <ScrollView contentContainerStyle={[styles.content, { minHeight: h, paddingTop: TOP_INSET + 16 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { minHeight: h, paddingTop: TOP_INSET + 58 }]} showsVerticalScrollIndicator={false}>
         <Logo />
         <BirdIcon type={profile.character} size={110} />
         <View style={styles.chip}><Text style={styles.chipText}>Merhaba, {profile.nickname}!</Text></View>
@@ -22,6 +22,7 @@ export default function MenuScreen({ profile, go }) {
           <Button title="Ayarlar · Takma Adı Değiştir" color="gray" small onPress={() => go('nickname')} />
         </View>
       </ScrollView>
+      <SoundControls style={{ position: 'absolute', right: 14, top: TOP_INSET + 4 }} />
     </View>
   );
 }
