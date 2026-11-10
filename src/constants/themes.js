@@ -7,6 +7,13 @@ export const THEMES = [
     dust: ['#e2b48a', '#a8643c'], // toprak: açık + koyu parçacık
   },
   {
+    id: 'nemrut', name: 'Nemrut Dağı',
+    sky: ['#2b2a63', '#7f4b95', '#ef8a63', '#ffd28d'],
+    sun: { x: 0.5, y: 0.5, r: 42, color: '#ffe8b0', opacity: 0.95 },
+    branch: { bark: '#7a6650', dark: '#54463a', thorn: '#3d322a', leaf: '#a8a050' },
+    dust: ['#c9b79a', '#8a7660'], // taş tozu
+  },
+  {
     id: 'ege', name: 'Ege Sahili',
     sky: ['#2f9fe0', '#6cc6ee', '#b5e6f5', '#fff0cc'],
     sun: { x: 0.2, y: 0.16, r: 36, color: '#fffbe0' },
