@@ -14,13 +14,6 @@ export const THEMES = [
     dust: ['#f6e5b2', '#d8b36c'], // kum
   },
   {
-    id: 'sumela', name: 'Sümela Manastırı',
-    sky: ['#9fb4ad', '#c3d3cc', '#dfe8e3', '#f1f5f1'],
-    sun: { x: 0.75, y: 0.12, r: 34, color: '#ffffff', opacity: 0.6 },
-    branch: { bark: '#5a4632', dark: '#3a2c1e', thorn: '#2a1f15', leaf: '#3f7d3a' },
-    dust: ['#9c7a52', '#4f7a3a'], // toprak + yaprak parçaları
-  },
-  {
     id: 'istanbul', name: 'İstanbul Boğazı',
     sky: ['#3d6fb6', '#7aa6d8', '#f3b184', '#ffd9a6'],
     sun: { x: 0.7, y: 0.42, r: 44, color: '#fff0b5' },

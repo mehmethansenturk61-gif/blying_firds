@@ -124,6 +124,47 @@ const egeGulet = (x, y, sc, k) => (
     <Rect x={x - 36 * sc} y={y + 1 * sc} width={72 * sc} height={2} fill="#6b4524" />
   </G>
 );
+
+// Model A: modern motor yacht (3 katlı, beyaz-lacivert)
+const egeYacht = (x, y, sc, k) => (
+  <G key={k}>
+    <Ellipse cx={x + 6 * sc} cy={y + 13 * sc} rx={78 * sc} ry={3.4 * sc} fill="#0e6f96" opacity={0.3} />
+    <Path d={`M${x - 74 * sc} ${y + 12 * sc} Q${x - 120 * sc} ${y + 14 * sc} ${x - 150 * sc} ${y + 16 * sc} L${x - 150 * sc} ${y + 10 * sc} Q${x - 120 * sc} ${y + 8 * sc} ${x - 74 * sc} ${y + 6 * sc} Z`} fill="#ffffff" opacity={0.6} />
+    <Path d={`M${x - 64 * sc} ${y - 2 * sc} Q${x + 20 * sc} ${y - 1 * sc} ${x + 86 * sc} ${y - 10 * sc} L${x + 68 * sc} ${y + 11 * sc} L${x - 58 * sc} ${y + 11 * sc} Q${x - 64 * sc} ${y + 7 * sc} ${x - 64 * sc} ${y - 2 * sc} Z`} fill="#1d3557" />
+    <Path d={`M${x - 64 * sc} ${y + 1 * sc} Q${x + 20 * sc} ${y + 2 * sc} ${x + 82 * sc} ${y - 6 * sc} L${x + 80 * sc} ${y - 3.5 * sc} Q${x + 20 * sc} ${y + 5 * sc} ${x - 64 * sc} ${y + 3.5 * sc} Z`} fill="#ffffff" />
+    <Rect x={x - 46 * sc} y={y - 17 * sc} width={88 * sc} height={15 * sc} rx={3 * sc} fill="#ffffff" />
+    <Rect x={x - 40 * sc} y={y - 14 * sc} width={76 * sc} height={5 * sc} rx={2 * sc} fill="#2b4a66" />
+    <Rect x={x - 32 * sc} y={y - 31 * sc} width={58 * sc} height={14 * sc} rx={3 * sc} fill="#f4f6f8" />
+    <Rect x={x - 26 * sc} y={y - 28 * sc} width={46 * sc} height={5 * sc} rx={2 * sc} fill="#2b4a66" />
+    <Rect x={x - 38 * sc} y={y - 32 * sc} width={70 * sc} height={2.4 * sc} rx={1} fill="#1d3557" />
+    <Rect x={x - 16 * sc} y={y - 42 * sc} width={30 * sc} height={11 * sc} rx={3 * sc} fill="#ffffff" />
+    <Rect x={x - 12 * sc} y={y - 40 * sc} width={22 * sc} height={4 * sc} rx={1.5 * sc} fill="#2b4a66" />
+    <Rect x={x - 1 * sc} y={y - 54 * sc} width={1.8} height={12 * sc} fill="#7a8794" />
+    <Rect x={x - 7 * sc} y={y - 51 * sc} width={14 * sc} height={1.8} fill="#7a8794" />
+    <Circle cx={x + 40 * sc} cy={y - 21 * sc} r={2 * sc} fill="#e74c3c" />
+    <Rect x={x + 50 * sc} y={y - 16 * sc} width={1.4} height={14 * sc} fill="#7a8794" />
+    <Polygon points={`${x + 51 * sc},${y - 16 * sc} ${x + 62 * sc},${y - 13 * sc} ${x + 51 * sc},${y - 10 * sc}`} fill="#e74c3c" />
+  </G>
+);
+
+// Yelkenli: lüks yelkenli yat (sloop, lacivert gövde, ana yelken + genoa)
+const egeSail = (x, y, sc, k) => (
+  <G key={k}>
+    <Ellipse cx={x} cy={y + 13 * sc} rx={62 * sc} ry={3.2 * sc} fill="#0e6f96" opacity={0.3} />
+    <Path d={`M${x - 58 * sc} ${y + 12 * sc} Q${x - 100 * sc} ${y + 14 * sc} ${x - 130 * sc} ${y + 16 * sc} L${x - 130 * sc} ${y + 10 * sc} Q${x - 100 * sc} ${y + 8 * sc} ${x - 58 * sc} ${y + 6 * sc} Z`} fill="#ffffff" opacity={0.55} />
+    <Rect x={x - 1} y={y - 92 * sc} width={2.2} height={90 * sc} fill="#8a95a0" />
+    <Rect x={x - 46 * sc} y={y - 10 * sc} width={46 * sc} height={2} fill="#8a95a0" />
+    <Polygon points={`${x - 2.5},${y - 88 * sc} ${x - 2.5},${y - 12 * sc} ${x - 46 * sc},${y - 12 * sc}`} fill="#ffffff" />
+    <Path d={`M${x - 2.5} ${y - 62 * sc} L${x - 31 * sc} ${y - 12 * sc}`} stroke="#d7dde3" strokeWidth={1.2} />
+    <Polygon points={`${x + 3},${y - 84 * sc} ${x + 3},${y - 8 * sc} ${x + 58 * sc},${y - 8 * sc}`} fill="#f4ead2" />
+    <Path d={`M${x + 3} ${y - 50 * sc} L${x + 34 * sc} ${y - 8 * sc}`} stroke="#e3d6b8" strokeWidth={1.2} />
+    <Path d={`M${x - 3} ${y - 92 * sc} L${x + 11 * sc} ${y - 89 * sc} L${x - 3} ${y - 86 * sc} Z`} fill="#f5b700" />
+    <Path d={`M${x - 60 * sc} ${y - 4 * sc} Q${x + 10 * sc} ${y - 3 * sc} ${x + 70 * sc} ${y - 10 * sc} L${x + 52 * sc} ${y + 10 * sc} L${x - 50 * sc} ${y + 10 * sc} Q${x - 60 * sc} ${y + 6 * sc} ${x - 60 * sc} ${y - 4 * sc} Z`} fill="#10243f" />
+    <Path d={`M${x - 60 * sc} ${y - 1 * sc} Q${x + 10 * sc} ${y} ${x + 67 * sc} ${y - 7 * sc} L${x + 65 * sc} ${y - 4.5 * sc} Q${x + 10 * sc} ${y + 2.5 * sc} ${x - 60 * sc} ${y + 1.5 * sc} Z`} fill="#d9a441" />
+    <Rect x={x - 22 * sc} y={y - 10 * sc} width={26 * sc} height={7 * sc} rx={2 * sc} fill="#f6f6f6" />
+    <Rect x={x - 18 * sc} y={y - 8.5 * sc} width={18 * sc} height={2.6 * sc} rx={1} fill="#2b4a66" />
+  </G>
+);
 const egePalm = (x, y, sc, k) => {
   const tx = x + 2 * sc, ty = y - 58 * sc;
   return (
@@ -260,6 +301,32 @@ const tower = (x) => (
   </G>
 );
 
+/* ---- İstanbul Boğazı için yardımcılar ---- */
+const isMinaret = (x, base, h, fill, k) => (
+  <G key={k}>
+    <Rect x={x - 2.4} y={base - h} width={4.8} height={h + 2} fill={fill} />
+    <Rect x={x - 4.2} y={base - h * 0.7} width={8.4} height={2.6} fill={fill} />
+    <Polygon points={`${x - 3},${base - h} ${x},${base - h - 13} ${x + 3},${base - h}`} fill={fill} />
+  </G>
+);
+const isDome = (cx, base, rx, ry, fill, k) => (
+  <G key={k}>
+    <Path d={`M${cx - rx} ${base} A${rx} ${ry} 0 0 1 ${cx + rx} ${base} Z`} fill={fill} />
+    <Rect x={cx - 0.9} y={base - ry - 6} width={1.8} height={7} fill={fill} />
+  </G>
+);
+const isMosque = (cx, base, sc, minarets, fill, k) => (
+  <G key={k}>
+    <Rect x={cx - 38 * sc} y={base - 18 * sc} width={76 * sc} height={20 * sc} fill={fill} />
+    {isDome(cx, base - 18 * sc, 31 * sc, 27 * sc, fill, 'c')}
+    {isDome(cx - 35 * sc, base - 15 * sc, 15 * sc, 13 * sc, fill, 'l')}
+    {isDome(cx + 35 * sc, base - 15 * sc, 15 * sc, 13 * sc, fill, 'r')}
+    {minarets.map(([dx, h], i) => isMinaret(cx + dx * sc, base, h * sc, fill, `m${i}`))}
+  </G>
+);
+const isCable = (x) => { const t = (x - 100) / 400; return (1 - t) * (1 - t) * 340 + 2 * t * (1 - t) * 780 + t * t * 340; };
+const isWin = (x, y, k) => (<Rect key={k} x={x} y={y} width={3} height={4.5} rx={1} fill="#ffd77a" opacity={0.85} />);
+
 const ART = {
   kapadokya: {
     grads: [['far', '#d98a7a', '#f6c3a0'], ['mesa', '#e3a273', '#b26a42'], ['chim', '#e8b087', '#c27e55'], ['hill', '#d69262', '#b9693f']],
@@ -312,13 +379,10 @@ const ART = {
         <Rect x={0} y={560} width={1800} height={16} fill="#a6eef0" opacity={0.5} />
         {range(0, 27).map((i) => (<Rect key={`sp${i}`} x={30 + i * 66} y={596 + ((i * 37) % 90)} width={30 + ((i * 13) % 34)} height={2.4} rx={1.2} fill="#ffffff" opacity={0.45} />))}
         {/* çam kaplı tepe (solda) */}
-        {egeHill('hA')}
         {/* ortada küçük ada */}
-        <Ellipse cx={1010} cy={598} rx={78} ry={9} fill="#ffffff" opacity={0.55} />
-        <Path d="M944 598 Q972 546 1014 550 Q1056 554 1078 598 Z" fill={EG('hill')} />
-        {egePine(985, 566, 0.5, 'i1')}{egePine(1015, 556, 0.6, 'i2')}{egePine(1045, 570, 0.45, 'i3')}
+        <Ellipse cx={1010} cy={598} rx={44} ry={5} fill="#ffffff" opacity={0.55} />
+        <Path d="M974 598 Q990 578 1012 580 Q1034 582 1046 598 Z" fill={EG('hill')} />
         {/* aynalanmış ikinci tepe (sağda) */}
-        <G transform="translate(2100 0) scale(-1 1)">{egeHill('hB')}</G>
       </G>) },
       { factor: 0.5, draw: () => (<G>
         {/* denizde: tekneler, gulet, jet-ski, yüzenler */}
@@ -326,6 +390,8 @@ const ART = {
         {egeJet(690, 652, 1, '#e74c3c', SKIN[0], 'j1')}
         {egeSwimmer(850, 656, SKIN[1], 'sw1')}{egeSwimmer(905, 668, SKIN[0], 'sw2')}
         {egeBoat(1010, 620, 0.7, 'b3')}
+        {egeYacht(612, 606, 1.1, 'yacht')}
+        {egeSail(1300, 608, 1, 'sail')}
         {egeGulet(1190, 610, 0.85, 'g2')}
         {egeJet(1380, 646, 1, '#2f86d6', SKIN[2], 'j2')}
         {egeBoat(1520, 636, 0.85, 'b4')}{egeSwimmer(1640, 660, SKIN[1], 'sw3')}{egeBoat(1730, 606, 0.55, 'b5')}
@@ -358,98 +424,83 @@ const ART = {
     </G>),
   },
 
-  sumela: {
-    grads: [['far', '#6d8e85', '#a8c2b8'], ['far2', '#4f7566', '#86a596'], ['rock', '#948b7c', '#5a5348'], ['wall', '#ead9b2', '#c9b384'], ['tree', '#2e6b43', '#1c4a2e']],
-    layers: [
-      { factor: 0.05, draw: () => (<G>{mist([[110, 130, 130, 14], [380, 200, 160, 16], [540, 90, 90, 10]], 0.28)}</G>) },
-      { factor: 0.1, draw: () => (<G><Path d={jag(470, 55, 2, 0.3, 8)} fill={S('far')} /><Path d={jag(535, 38, 3, 2, 6)} fill={S('far2')} /></G>) },
-      { factor: 0.22, draw: () => (<G>{mist([[90, 520, 120, 20], [330, 560, 150, 24], [520, 500, 100, 18]], 0.4)}</G>) },
-      { factor: 0.4, draw: () => (<G>
-        <Path d={`M90 ${GY + 10} L120 520 L140 430 L175 400 L200 340 L260 330 L330 345 L420 335 L480 350 L510 420 L540 520 L560 ${GY + 10}Z`} fill={S('rock')} />
-        <Path d={`M230 345 L238 ${GY} L254 ${GY}Z`} fill="#000" opacity={0.18} />
-        <Path d={`M330 345 L322 ${GY} L340 ${GY}Z`} fill="#000" opacity={0.15} />
-        <Path d={`M150 430 L160 ${GY} L178 ${GY}Z`} fill="#000" opacity={0.15} />
-        <Path d="M455 352 C452 420 458 470 452 520 L458 520 C464 470 460 420 462 352Z" fill="#fff" opacity={0.8} />
-        <Ellipse cx={455} cy={524} rx={24} ry={7} fill="#fff" opacity={0.5} />
-        <Rect x={205} y={500} width={225} height={22} fill="#a89a82" />
-        {range(0, 6).map((i) => (<Ellipse key={`a${i}`} cx={224 + i * 31} cy={515} rx={8} ry={10} fill="#4a3d30" />))}
-        <Rect x={215} y={440} width={200} height={60} fill={S('wall')} />
-        <Polygon points="209,440 315,418 421,440" fill="#9b4f33" />
-        <Rect x={255} y={396} width={120} height={44} fill={S('wall')} />
-        <Polygon points="249,396 315,370 381,396" fill="#8d4429" />
-        {[235, 265, 295, 335, 365, 395].map((x) => (<Path key={x} d={`M${x - 5} 490 L${x - 5} 468 A5 5 0 0 1 ${x + 5} 468 L${x + 5} 490Z`} fill="#4a3828" />))}
-        {[280, 315, 350].map((x) => (<Path key={x} d={`M${x - 5} 430 L${x - 5} 412 A5 5 0 0 1 ${x + 5} 412 L${x + 5} 430Z`} fill="#4a3828" />))}
-        <Rect x={313} y={354} width={3} height={16} fill="#4a3828" />
-        {pine(60, 100, 1)}{pine(100, 72, 2)}{pine(575, 90, 3)}
-      </G>) },
-      { factor: 0.65, draw: () => (<G>
-        {[[30, 120], [75, 160], [130, 110], [190, 170], [250, 120], [330, 150], [400, 115], [455, 175], [520, 125], [570, 150]].map(([x, h], i) => pine(x, h, i))}
-      </G>) },
-      { factor: 0.85, draw: () => (<G>
-        {pine(110, 210, 1, '#173d27')}{pine(450, 230, 2, '#173d27')}
-        {mist([[120, 660, 120, 20], [400, 680, 140, 22], [560, 650, 70, 14]], 0.3)}
-      </G>) },
-    ],
-    ground: () => (<G>
-      {groundBase('#5e9a4a', '#2f5a2b', 14)}
-      {range(0, 11).map((i) => (<Polygon key={i} points={`${i * 50 + 8},${GY} ${i * 50 + 15},${GY - 14} ${i * 50 + 22},${GY}`} fill="#6fb257" />))}
-      {range(0, 7).map((i) => (<Ellipse key={`r${i}`} cx={30 + i * 80} cy={GY + 40 + (i % 3) * 14} rx={9} ry={5} fill="#6b6b60" opacity={0.75} />))}
-    </G>),
-  },
-
   istanbul: {
-    grads: [['far', '#8c9fc9', '#cdbfd6'], ['hag', '#a9a3c1', '#7d7aa3'], ['water', '#3f93d6', '#1b4f86']],
+    grads: [['far', '#8c9fc9', '#d1c2d8'], ['far2', '#7b8dba', '#bdb4d0'], ['hag', '#8a84ad', '#625e8c'], ['water', '#3f93d6', '#173f78'], ['bay', '#e9a98f', '#3d78b8']],
     layers: [
-      { factor: 0.05, draw: () => (<G>{[[120, 260, 110, 9], [400, 215, 140, 8], [540, 300, 90, 7], [250, 340, 120, 7]].map(([x, y, rx, ry], i) => (<Ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#ffc9a0" opacity={0.7} />))}</G>) },
+      { factor: 0.05, draw: () => (<G>
+        {[[110, 250, 120, 8], [430, 205, 150, 8], [560, 300, 90, 6], [250, 345, 130, 6]].map(([x, y, rx, ry], i) => (<Ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#ffc9a0" opacity={0.65} />))}
+        {[[60, 150, 90, 5], [340, 120, 120, 5], [520, 175, 70, 4]].map(([x, y, rx, ry], i) => (<Ellipse key={`p${i}`} cx={x} cy={y} rx={rx} ry={ry} fill="#fff1e0" opacity={0.5} />))}
+      </G>) },
       { factor: 0.18, draw: () => (<G>{gull(90, 120, 1)}{gull(135, 152, 2)}{gull(380, 90, 3)}{gull(470, 185, 4)}{gull(545, 110, 5)}</G>) },
       { factor: 0.1, draw: () => (<G>
-        <Path d={ridge([[0, 600], [120, 575], [260, 590], [380, 570], [500, 588], [600, 600]])} fill={S2('far')} />
-        {range(0, 29).map((i) => (<Rect key={i} x={i * 20 + 2} y={612 + ((i * 7) % 14)} width={14} height={GY - 612} fill="#9a9bc0" />))}
+        <Path d={ridge([[0, 600], [110, 570], [240, 588], [370, 560], [490, 584], [600, 600]])} fill={S2('far')} />
+        <Path d={ridge([[0, 618], [130, 598], [260, 612], [400, 592], [520, 610], [600, 618]])} fill={S2('far2')} />
+        {range(0, 29).map((i) => (<Rect key={i} x={i * 20 + 3} y={620 + ((i * 7) % 12)} width={10} height={GY - 620} fill="#9a9bc0" opacity={0.7} />))}
       </G>) },
-      { factor: 0.2, draw: () => (<G>
-        {[[70, 165], [330, 165]].map(([x, h], i) => (<G key={`m${i}`}><Rect x={x - 4} y={GY - h} width={8} height={h + 6} fill={S2('hag')} /><Rect x={x - 7} y={GY - h * 0.7} width={14} height={4} fill={S2('hag')} /><Polygon points={`${x - 5},${GY - h} ${x},${GY - h - 24} ${x + 5},${GY - h}`} fill="#6a678f" /></G>))}
-        {[[97, 120], [303, 120]].map(([x, h], i) => (<G key={`n${i}`}><Rect x={x - 3.5} y={GY - h} width={7} height={h + 6} fill={S2('hag')} /><Polygon points={`${x - 4.5},${GY - h} ${x},${GY - h - 20} ${x + 4.5},${GY - h}`} fill="#6a678f" /></G>))}
-        <Rect x={130} y={GY - 80} width={140} height={86} fill={S2('hag')} />
-        <Path d={`M105 ${GY - 40} A30 30 0 0 1 165 ${GY - 40}Z`} fill={S2('hag')} />
-        <Path d={`M235 ${GY - 40} A30 30 0 0 1 295 ${GY - 40}Z`} fill={S2('hag')} />
-        <Path d={`M146 ${GY - 80} Q200 ${GY - 200} 254 ${GY - 80}Z`} fill="#b5aecb" />
-        <Rect x={196} y={GY - 202} width={8} height={14} fill="#6a678f" />
-        {range(0, 7).map((i) => (<Rect key={i} x={150 + i * 14} y={GY - 78} width={5} height={10} rx={2} fill="#ffd77a" opacity={0.8} />))}
-        <Rect x={458} y={GY - 200} width={24} height={206} fill="#a39fbe" />
-        <Rect x={452} y={GY - 206} width={36} height={8} fill="#6a678f" />
-        <Polygon points={`454,${GY - 206} 470,${GY - 248} 486,${GY - 206}`} fill="#5d5a85" />
-        {[GY - 170, GY - 130, GY - 90].map((y) => (<Rect key={y} x={467} y={y} width={6} height={10} rx={3} fill="#ffd77a" opacity={0.85} />))}
-        {bldg(10, 36, 70, '#8e8fb3', 1)}{bldg(46, 30, 95, '#9798bb', 2)}{bldg(500, 36, 80, '#8e8fb3', 3)}{bldg(536, 32, 110, '#9798bb', 4)}{bldg(568, 26, 66, '#8e8fb3', 5)}
+      { factor: 0.22, draw: () => (<G>
+        <Rect x={0} y={640} width={TILE} height={GY - 640} fill={S2('bay')} />
+        {/* eski şehir: Ayasofya + Süleymaniye + Galata */}
+        <Rect x={0} y={632} width={TILE} height={10} fill={S2('hag')} />
+        {range(0, 29).map((i) => (<Rect key={`b${i}`} x={i * 20 + 1} y={612 + ((i * 13) % 18)} width={17} height={34} fill={S2('hag')} />))}
+        {isMosque(160, 634, 1.2, [[-52, 80], [52, 80], [-60, 62], [60, 62]], '#6f6a98', 'aya')}
+        {isMosque(330, 634, 1.0, [[-56, 92], [56, 92], [-64, 68], [64, 68]], '#6f6a98', 'sul')}
+        <Rect x={470} y={560} width={22} height={76} fill="#8a82ad" />
+        <Rect x={466} y={556} width={30} height={7} fill="#8e86ab" />
+        <Rect x={470} y={534} width={22} height={24} fill="#8a82ad" />
+        <Polygon points="467,534 495,534 481,500" fill="#6a678f" />
+        <Rect x={480.2} y={486} width={1.6} height={16} fill="#6a678f" />
+        {[546, 570, 594, 618].map((y) => (<Rect key={y} x={478.5} y={y} width={5} height={9} rx={2.5} fill="#ffd77a" opacity={0.85} />))}
+        {range(0, 9).map((i) => isWin(14 + i * 62, 642 + (i % 3) * 5, `w${i}`))}
+        {/* Kız Kulesi */}
+        <Ellipse cx={560} cy={652} rx={24} ry={5} fill="#7d7aa3" />
+        <Rect x={553} y={632} width={14} height={20} fill="#f2e6dc" />
+        <Rect x={550} y={630} width={20} height={4} fill="#d8c8bc" />
+        <Path d="M553 630 A7 7 0 0 1 567 630 Z" fill="#b9594a" />
+        <Rect x={559} y={617} width={2} height={7} fill="#b9594a" />
+        <Rect x={558} y={638} width={4} height={6} rx={2} fill="#ffd77a" opacity={0.9} />
       </G>) },
       { factor: 0.4, draw: () => (<G>
-        <Rect x={0} y={603} width={TILE} height={9} fill="#2f3b63" />
-        {tower(100)}{tower(500)}
-        <Path d="M100 380 Q300 740 500 380" stroke="#2f3b63" strokeWidth={3} fill="none" />
-        <Line x1={100} y1={380} x2={0} y2={603} stroke="#2f3b63" strokeWidth={3} />
-        <Line x1={500} y1={380} x2={600} y2={603} stroke="#2f3b63" strokeWidth={3} />
-        {range(0, 18).map((i) => { const x = 120 + i * 20; return (<Line key={i} x1={x} y1={cableY(x)} x2={x} y2={603} stroke="#2f3b63" strokeWidth={1.4} />); })}
-        {range(0, 23).map((i) => (<Circle key={`l${i}`} cx={12 + i * 25} cy={599} r={1.8} fill="#ffe08a" />))}
+        {/* köprü */}
+        <Line x1={100} y1={340} x2={0} y2={585} stroke="#2f3b63" strokeWidth={3} />
+        <Line x1={500} y1={340} x2={600} y2={585} stroke="#2f3b63" strokeWidth={3} />
+        <Path d="M100 340 Q300 780 500 340" stroke="#2f3b63" strokeWidth={3.4} fill="none" />
+        {range(0, 24).map((i) => { const x = 100 + i * 16.7; return (<Line key={i} x1={x} y1={isCable(x)} x2={x} y2={585} stroke="#2f3b63" strokeWidth={1.3} />); })}
+        {[100, 500].map((x) => (<G key={x}>
+          <Rect x={x - 8} y={330} width={5} height={330} fill="#2a3560" />
+          <Rect x={x + 3} y={330} width={5} height={330} fill="#2a3560" />
+          {[380, 450, 520].map((y) => (<Rect key={y} x={x - 8} y={y} width={16} height={4} fill="#2a3560" />))}
+          <Rect x={x - 10} y={326} width={20} height={6} fill="#c0392b" />
+        </G>))}
+        <Rect x={0} y={583} width={TILE} height={9} fill="#2a3560" />
+        <Rect x={0} y={592} width={TILE} height={3} fill="#4b5a94" />
+        {range(0, 29).map((i) => (<Circle key={`l${i}`} cx={10 + i * 20} cy={581} r={1.8} fill="#ffe08a" />))}
+        {[[30, '#ffffff'], [190, '#ff6b5a'], [350, '#ffffff'], [540, '#ff6b5a']].map(([x, c]) => (<Rect key={x} x={x} y={577} width={8} height={4} rx={1.5} fill="#1f2750" />))}
       </G>) },
       { factor: 0.7, draw: () => (<G>
-        <Path d={`M120 696 L250 696 L240 712 L130 712Z`} fill="#2b3558" />
-        <Rect x={150} y={678} width={72} height={18} fill="#39446e" />
-        <Rect x={166} y={666} width={40} height={12} fill="#39446e" />
-        <Rect x={198} y={654} width={8} height={14} fill="#c0392b" />
-        {range(0, 5).map((i) => (<Rect key={i} x={156 + i * 11} y={684} width={5} height={5} fill="#ffd77a" opacity={0.9} />))}
-        <Polygon points="430,640 430,700 472,700" fill="#f4e4d0" />
-        <Polygon points="426,646 426,700 404,700" fill="#e8cfb4" />
-        <Path d="M398 702 L478 702 L468 712 L408 712Z" fill="#2b3558" />
-        <Path d="M520 700 L568 700 L562 712 L526 712Z" fill="#7a3b3b" />
-        <Polygon points="544,678 544,700 566,700" fill="#f4e4d0" />
+        <Path d="M100 694 L250 694 L238 712 L112 712 Z" fill="#241f4a" />
+        <Rect x={118} y={678} width={112} height={16} fill="#f0e2d0" />
+        <Rect x={134} y={664} width={76} height={14} fill="#e6d4c0" />
+        {range(0, 9).map((i) => (<Rect key={`vw${i}`} x={124 + i * 12} y={683} width={5} height={5} fill="#ffd77a" opacity={0.95} />))}
+        {range(0, 5).map((i) => (<Rect key={`vu${i}`} x={142 + i * 12.5} y={668} width={5} height={5} fill="#ffd77a" opacity={0.9} />))}
+        <Rect x={166} y={644} width={14} height={21} fill="#2a2147" />
+        <Rect x={166} y={651} width={14} height={5} fill="#c0392b" />
+        <Ellipse cx={184} cy={632} rx={12} ry={7} fill="#ffffff" opacity={0.5} />
+        <Ellipse cx={202} cy={620} rx={16} ry={8} fill="#ffffff" opacity={0.35} />
+        <Polygon points="446,646 446,702 492,702" fill="#f4e4d0" />
+        <Polygon points="442,654 442,702 420,702" fill="#e8cfb4" />
+        <Rect x={445} y={640} width={2} height={64} fill="#6b4a2a" />
+        <Path d="M412 704 L498 704 L488 714 L424 714 Z" fill="#2b3558" />
+        <Path d="M530 702 L584 702 L578 714 L536 714 Z" fill="#7a3b3b" />
+        <Polygon points="556,680 556,702 578,702" fill="#f4e4d0" />
       </G>) },
     ],
     ground: () => (<G>
       <Rect x={0} y={GY} width={TILE} height={H - GY} fill={S2('water')} />
       <Rect x={0} y={GY} width={TILE} height={6} fill="#7cc4f2" opacity={0.7} />
+      {range(0, 8).map((i) => (<Rect key={`sr${i}`} x={14 + i * 72 + (i % 2) * 14} y={GY + 14 + (i % 4) * 15} width={32 + (i % 3) * 12} height={3.2} rx={1.6} fill="#ffd9a6" opacity={0.55} />))}
       <Path d={wave(GY + 28, 4, 6, 0, null)} stroke="#8fd0f5" strokeWidth={3} fill="none" />
       <Path d={wave(GY + 56, 4, 5, 1.5, null)} stroke="#6fb7e8" strokeWidth={3} fill="none" />
       <Path d={wave(GY + 78, 3, 7, 0.7, null)} stroke="#5aa6dd" strokeWidth={2.5} fill="none" />
-      {range(0, 9).map((i) => (<Line key={i} x1={20 + i * 60} y1={GY + 18 + (i % 4) * 16} x2={40 + i * 60} y2={GY + 18 + (i % 4) * 16} stroke="#fff" strokeWidth={2} opacity={0.5} />))}
     </G>),
   },
 };
