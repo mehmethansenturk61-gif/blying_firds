@@ -29,9 +29,20 @@ function burst(g, power) {
     }
     for (let k = 0; k < 3; k++) add({ kind: 'ring', x, y: GROUND_Y + 8 + k * 3, age: -k * 0.12, life: 0.9, r: 8 });
   } else {
-    const n = Math.round(7 * power) + 3;
+    // Toz bulutu + kum/toprak taneleri + yere yayılan toz halkası + (güçlü düşüşte) savrulan tüyler
+    const n = Math.round(6 * power) + 3;
     for (let i = 0; i < n; i++) {
-      add({ kind: 'dust', x: x + rand(-14, 14), y: GROUND_Y - 2, vx: rand(-110, 110), vy: rand(-90, -20), life: rand(0.6, 1.0), r: rand(5, 11) });
+      add({ kind: 'dust', x: x + rand(-14, 14), y: GROUND_Y - 2, vx: rand(-120, 120), vy: rand(-90, -20), life: rand(0.6, 1.1), r: rand(6, 13) });
+    }
+    const m = Math.round(12 * power) + 6;
+    for (let i = 0; i < m; i++) {
+      add({ kind: 'grain', x: x + rand(-12, 12), y: GROUND_Y - 3, vx: rand(-180, 180), vy: rand(-280, -90), life: rand(0.5, 0.95), r: rand(1.6, 3.6), c: Math.random() < 0.5 ? 0 : 1 });
+    }
+    add({ kind: 'dring', x, y: GROUND_Y, life: 0.5, r: 8 });
+    if (power >= 0.9) {
+      for (let i = 0; i < 4; i++) {
+        add({ kind: 'feather', x: x + rand(-10, 10), y: GROUND_Y - 14, vx: rand(-70, 70), vy: rand(-170, -90), life: rand(1.0, 1.4), r: rand(5, 7.5), rot: rand(0, 360), spin: rand(-260, 260) });
+      }
     }
   }
 }
@@ -42,6 +53,8 @@ function updateParticles(g, dt) {
     if (p.age < 0) continue;
     if (p.kind === 'drop') p.vy += 900 * dt;
     if (p.kind === 'dust') p.vx *= Math.max(0, 1 - 2.5 * dt);
+    if (p.kind === 'grain') p.vy += 950 * dt;
+    if (p.kind === 'feather') { p.vy += 120 * dt; p.vx = p.vx * Math.max(0, 1 - 0.8 * dt) + Math.sin(p.age * 9) * 60 * dt; p.rot += p.spin * dt; }
     p.x += p.vx * dt;
     p.y += p.vy * dt;
   }

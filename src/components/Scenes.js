@@ -76,23 +76,147 @@ const chimney = (x, h, w, k) => (
   </G>
 );
 
-/* ================= PAMUKKALE ================= */
-const P = (n) => `url(#g-pamukkale-${n})`;
-const column = (x, h, k) => (
+/* ================= EGE SAHİLİ (Muğla / Antalya esinli) ================= */
+const EG = (n) => `url(#g-ege-${n})`;
+const egePine = (x, y, sc, k) => (
   <G key={k}>
-    <Rect x={x - 5} y={GY - h} width={10} height={h + 6} fill={P('stone')} />
-    <Rect x={x - 8} y={GY - h - 5} width={16} height={6} fill="#e6dfcb" />
-    <Rect x={x - 1} y={GY - h} width={2} height={h} fill="#fff" opacity={0.35} />
+    <Rect x={x - 1.5 * sc} y={y - 5 * sc} width={3 * sc} height={7 * sc} fill="#4a3322" />
+    <Polygon points={`${x - 13 * sc},${y - 3 * sc} ${x + 13 * sc},${y - 3 * sc} ${x},${y - 30 * sc}`} fill="#2b6b45" />
+    <Polygon points={`${x - 10 * sc},${y - 18 * sc} ${x + 10 * sc},${y - 18 * sc} ${x},${y - 44 * sc}`} fill="#357d52" />
   </G>
 );
-const pool = (x, y, rx, k) => (
+// 1800 birimlik periyotta dalga (Ege haritası için)
+const waveT = (base, amp, k, ph = 0, bottom = H, step = 20) => {
+  let d = '';
+  for (let x = 0; x <= 1800; x += step) {
+    d += `${x === 0 ? 'M' : 'L'}${x} ${(base + amp * Math.sin((2 * Math.PI * k * x) / 1800 + ph)).toFixed(1)} `;
+  }
+  return bottom === null ? d : `${d}L1800 ${bottom} L0 ${bottom} Z`;
+};
+// Çam kaplı, beyaz evli tepe
+const egeHill = (k) => (
   <G key={k}>
-    <Ellipse cx={x} cy={y + 9} rx={rx + 7} ry={14} fill="#eaf6f8" />
-    <Ellipse cx={x} cy={y + 4} rx={rx + 5} ry={13} fill="#ffffff" />
-    <Ellipse cx={x} cy={y} rx={rx} ry={10.5} fill={P('pool')} />
-    <Ellipse cx={x - rx * 0.25} cy={y - 2} rx={rx * 0.45} ry={2.6} fill="#c8fbf8" opacity={0.75} />
-    <Line x1={x - rx * 0.55} y1={y + 17} x2={x - rx * 0.55} y2={y + 30} stroke="#bff0f3" strokeWidth={3} opacity={0.6} />
-    <Line x1={x + rx * 0.35} y1={y + 17} x2={x + rx * 0.35} y2={y + 28} stroke="#bff0f3" strokeWidth={3} opacity={0.6} />
+    <Path d="M320 596 Q350 522 410 506 Q470 490 520 514 Q562 540 582 596 Z" fill={EG('hill')} />
+    <Ellipse cx={452} cy={597} rx={136} ry={5} fill="#ffffff" opacity={0.6} />
+    {[[408, 548], [430, 538], [455, 530], [482, 534], [506, 548], [470, 552], [440, 558]].map(([x, y], i) => (<G key={`h${i}`}><Rect x={x - 6} y={y - 8} width={12} height={9} fill="#ffffff" /><Polygon points={`${x - 8},${y - 8} ${x + 8},${y - 8} ${x},${y - 15}`} fill="#d9653b" /></G>))}
+    {[[352, 578, 0.55], [372, 556, 0.5], [392, 540, 0.45], [540, 560, 0.5], [558, 580, 0.55], [524, 530, 0.4]].map(([x, y, sc], i) => egePine(x, y, sc, `p${i}`))}
+  </G>
+);
+const egeBoat = (x, y, sc, k) => (
+  <G key={k}>
+    <Ellipse cx={x} cy={y + 12 * sc} rx={26 * sc} ry={2.6 * sc} fill="#0e6f96" opacity={0.3} />
+    <Rect x={x - 1} y={y - 46 * sc} width={2} height={46 * sc} fill="#7a6a5a" />
+    <Polygon points={`${x + 2},${y - 44 * sc} ${x + 2},${y - 4 * sc} ${x + 24 * sc},${y - 4 * sc}`} fill="#ffffff" />
+    <Polygon points={`${x - 2},${y - 38 * sc} ${x - 2},${y - 4 * sc} ${x - 20 * sc},${y - 4 * sc}`} fill="#ffe9c8" />
+    <Path d={`M${x - 28 * sc} ${y} L${x + 28 * sc} ${y} L${x + 19 * sc} ${y + 10 * sc} L${x - 19 * sc} ${y + 10 * sc} Z`} fill="#f6f6f6" />
+    <Path d={`M${x - 26 * sc} ${y + 3 * sc} L${x + 26 * sc} ${y + 3 * sc} L${x + 24 * sc} ${y + 5.5 * sc} L${x - 24 * sc} ${y + 5.5 * sc} Z`} fill="#2f7fd1" />
+  </G>
+);
+const egeGulet = (x, y, sc, k) => (
+  <G key={k}>
+    <Ellipse cx={x} cy={y + 12 * sc} rx={40 * sc} ry={3 * sc} fill="#0e6f96" opacity={0.3} />
+    <Rect x={x - 14 * sc} y={y - 38 * sc} width={1.8} height={38 * sc} fill="#6b4a2a" />
+    <Rect x={x + 12 * sc} y={y - 32 * sc} width={1.8} height={32 * sc} fill="#6b4a2a" />
+    <Polygon points={`${x - 12 * sc},${y - 36 * sc} ${x - 12 * sc},${y - 4 * sc} ${x + 8 * sc},${y - 4 * sc}`} fill="#f4ead2" />
+    <Polygon points={`${x + 14 * sc},${y - 30 * sc} ${x + 14 * sc},${y - 4 * sc} ${x + 30 * sc},${y - 4 * sc}`} fill="#f4ead2" />
+    <Rect x={x - 8 * sc} y={y - 10 * sc} width={26 * sc} height={9 * sc} fill="#ffffff" />
+    <Path d={`M${x - 40 * sc} ${y - 2 * sc} L${x + 38 * sc} ${y - 2 * sc} Q${x + 34 * sc} ${y + 10 * sc} ${x + 22 * sc} ${y + 10 * sc} L${x - 30 * sc} ${y + 10 * sc} Q${x - 38 * sc} ${y + 6 * sc} ${x - 40 * sc} ${y - 2 * sc} Z`} fill="#9a6a3a" />
+    <Rect x={x - 36 * sc} y={y + 1 * sc} width={72 * sc} height={2} fill="#6b4524" />
+  </G>
+);
+const egePalm = (x, y, sc, k) => {
+  const tx = x + 2 * sc, ty = y - 58 * sc;
+  return (
+    <G key={k}>
+      <Path d={`M${x} ${y} Q${x + 7 * sc} ${y - 30 * sc} ${tx} ${ty}`} stroke="#8a6038" strokeWidth={5 * sc} strokeLinecap="round" fill="none" />
+      {[-150, -110, -70, -30, 10, 40, 140, 172].map((a, i) => (
+        <Ellipse key={i} cx={tx + 21 * sc} cy={ty} rx={22 * sc} ry={4.8 * sc} fill={i % 2 ? '#3fb36a' : '#2f9a55'} transform={`rotate(${a} ${tx} ${ty})`} />
+      ))}
+      <Circle cx={tx - 2 * sc} cy={ty + 4 * sc} r={3 * sc} fill="#6b4524" />
+      <Circle cx={tx + 3 * sc} cy={ty + 5 * sc} r={3 * sc} fill="#7a5230" />
+    </G>
+  );
+};
+const egeParasol = (x, y, sc, c, k) => (
+  <G key={k}>
+    <Rect x={x - 1} y={y - 56 * sc} width={2} height={56 * sc} fill="#8a6a4a" />
+    <Path d={`M${x - 30 * sc} ${y - 50 * sc} Q${x} ${y - 86 * sc} ${x + 30 * sc} ${y - 50 * sc} Z`} fill={c} />
+    <Path d={`M${x - 10 * sc} ${y - 50 * sc} Q${x - 6 * sc} ${y - 74 * sc} ${x} ${y - 74 * sc} Q${x + 6 * sc} ${y - 74 * sc} ${x + 10 * sc} ${y - 50 * sc} Z`} fill="#ffffff" opacity={0.9} />
+  </G>
+);
+const SKIN = ['#f1c9a0', '#c98f62', '#8d5a3a'];
+// Şezlong: arkalığı yatık, çizgili havlulu
+const egeLounger = (x, y, sc, c, k) => (
+  <G key={k}>
+    <Rect x={x - 15 * sc} y={y - 4 * sc} width={2.4 * sc} height={4 * sc} fill="#9a8a78" />
+    <Rect x={x + 13 * sc} y={y - 4 * sc} width={2.4 * sc} height={4 * sc} fill="#9a8a78" />
+    <Path d={`M${x - 17 * sc} ${y - 8 * sc} L${x + 16 * sc} ${y - 8 * sc} L${x + 18 * sc} ${y - 4 * sc} L${x - 17 * sc} ${y - 4 * sc} Z`} fill="#ffffff" />
+    <Polygon points={`${x - 17 * sc},${y - 8 * sc} ${x - 26 * sc},${y - 22 * sc} ${x - 19 * sc},${y - 24 * sc} ${x - 10 * sc},${y - 8 * sc}`} fill="#ffffff" />
+    <Rect x={x - 8 * sc} y={y - 8.6 * sc} width={4 * sc} height={4.6 * sc} fill={c} />
+    <Rect x={x + 2 * sc} y={y - 8.6 * sc} width={4 * sc} height={4.6 * sc} fill={c} />
+  </G>
+);
+// Ayakta insan (kollar aşağı ya da yukarı)
+const egePerson = (x, y, sc, skin, top, bottom, armsUp, k) => (
+  <G key={k}>
+    <Rect x={x - 5 * sc} y={y - 15 * sc} width={3.6 * sc} height={15 * sc} rx={1.5} fill={skin} />
+    <Rect x={x + 1.4 * sc} y={y - 15 * sc} width={3.6 * sc} height={15 * sc} rx={1.5} fill={skin} />
+    <Rect x={x - 6 * sc} y={y - 20 * sc} width={12 * sc} height={8 * sc} rx={2} fill={bottom} />
+    <Rect x={x - 6 * sc} y={y - 34 * sc} width={12 * sc} height={16 * sc} rx={4} fill={top} />
+    {armsUp ? (
+      <Path d={`M${x - 6 * sc} ${y - 31 * sc} L${x - 10 * sc} ${y - 46 * sc} M${x + 6 * sc} ${y - 31 * sc} L${x + 10 * sc} ${y - 46 * sc}`} stroke={skin} strokeWidth={3.4 * sc} strokeLinecap="round" />
+    ) : (
+      <Path d={`M${x - 6 * sc} ${y - 31 * sc} L${x - 9 * sc} ${y - 19 * sc} M${x + 6 * sc} ${y - 31 * sc} L${x + 9 * sc} ${y - 19 * sc}`} stroke={skin} strokeWidth={3.4 * sc} strokeLinecap="round" />
+    )}
+    <Circle cx={x} cy={y - 40 * sc} r={5.4 * sc} fill={skin} />
+    <Path d={`M${x - 5.6 * sc} ${y - 40 * sc} A5.6 5.6 0 0 1 ${x + 5.6 * sc} ${y - 40 * sc} Z`} fill="#3b2a1e" />
+  </G>
+);
+// Şezlongda güneşlenen insan
+const egeSunbather = (x, y, sc, skin, suit, k) => (
+  <G key={k}>
+    <Rect x={x - 12 * sc} y={y - 17 * sc} width={20 * sc} height={8 * sc} rx={3} fill={suit} transform={`rotate(-12 ${x} ${y - 12 * sc})`} />
+    <Rect x={x + 6 * sc} y={y - 15 * sc} width={18 * sc} height={4.4 * sc} rx={2} fill={skin} />
+    <Circle cx={x - 20 * sc} cy={y - 21 * sc} r={5 * sc} fill={skin} />
+    <Path d={`M${x - 25 * sc} ${y - 21 * sc} A5 5 0 0 1 ${x - 15 * sc} ${y - 21 * sc} Z`} fill="#2a1f16" />
+    <Rect x={x - 28 * sc} y={y - 27 * sc} width={16 * sc} height={2.4 * sc} rx={1.2} fill="#ffffff" opacity={0.9} />
+  </G>
+);
+// Suda yüzen insan
+const egeSwimmer = (x, y, skin, k) => (
+  <G key={k}>
+    <Ellipse cx={x} cy={y + 4} rx={16} ry={3} fill="#ffffff" opacity={0.55} />
+    <Path d={`M${x + 2} ${y} Q${x + 16} ${y - 14} ${x + 26} ${y - 2}`} stroke={skin} strokeWidth={3.6} strokeLinecap="round" fill="none" />
+    <Circle cx={x} cy={y - 3} r={5.4} fill={skin} />
+    <Path d={`M${x - 5.4} ${y - 3} A5.4 5.4 0 0 1 ${x + 5.4} ${y - 3} Z`} fill="#3b2a1e" />
+  </G>
+);
+// Jet-ski: sağa doğru hızla gider, arkasında köpük izi
+const egeJet = (x, y, sc, c, skin, k) => (
+  <G key={k}>
+    <Path d={`M${x - 28 * sc} ${y + 4 * sc} Q${x - 70 * sc} ${y + 7 * sc} ${x - 130 * sc} ${y + 11 * sc} L${x - 130 * sc} ${y + 5 * sc} Q${x - 70 * sc} ${y + 1 * sc} ${x - 28 * sc} ${y - 1 * sc} Z`} fill="#ffffff" opacity={0.65} />
+    {[[-40, 2], [-56, 0], [-72, 3], [-90, 1]].map(([dx, dy], i) => (<Circle key={i} cx={x + dx * sc} cy={y + dy * sc - 4 * sc} r={(3 - i * 0.4) * sc} fill="#ffffff" opacity={0.8} />))}
+    <Path d={`M${x - 28 * sc} ${y} Q${x - 22 * sc} ${y - 9 * sc} ${x - 2 * sc} ${y - 10 * sc} L${x + 22 * sc} ${y - 10 * sc} Q${x + 34 * sc} ${y - 8 * sc} ${x + 40 * sc} ${y - 1 * sc} L${x + 32 * sc} ${y + 5 * sc} L${x - 26 * sc} ${y + 5 * sc} Z`} fill={c} />
+    <Rect x={x - 24 * sc} y={y + 1 * sc} width={58 * sc} height={2 * sc} fill="#ffffff" opacity={0.9} />
+    <Rect x={x - 14 * sc} y={y - 14 * sc} width={26 * sc} height={5 * sc} rx={2} fill="#2b2f3a" />
+    <Polygon points={`${x + 12 * sc},${y - 10 * sc} ${x + 20 * sc},${y - 22 * sc} ${x + 24 * sc},${y - 22 * sc} ${x + 24 * sc},${y - 10 * sc}`} fill="#bfe9ff" opacity={0.85} />
+    <Rect x={x - 12 * sc} y={y - 28 * sc} width={9 * sc} height={14 * sc} rx={3} fill="#f5b700" />
+    <Path d={`M${x - 4 * sc} ${y - 24 * sc} L${x + 16 * sc} ${y - 18 * sc}`} stroke={skin} strokeWidth={3 * sc} strokeLinecap="round" />
+    <Circle cx={x - 8 * sc} cy={y - 33 * sc} r={5 * sc} fill={skin} />
+    <Path d={`M${x - 13 * sc} ${y - 33 * sc} A5 5 0 0 1 ${x - 3 * sc} ${y - 33 * sc} Z`} fill="#e74c3c" />
+  </G>
+);
+// Voleybol filesi: direkler, ağ, ağ üstü bant + havadaki top
+const egeNet = (x, y, k) => (
+  <G key={k}>
+    <Rect x={x - 38} y={y - 56} width={3.4} height={56} fill="#8a6a4a" />
+    <Rect x={x + 35} y={y - 56} width={3.4} height={56} fill="#8a6a4a" />
+    <Rect x={x - 36} y={y - 52} width={74} height={22} fill="#ffffff" opacity={0.22} />
+    {range(0, 12).map((i) => (<Rect key={`v${i}`} x={x - 36 + i * 6.2} y={y - 52} width={0.8} height={22} fill="#ffffff" opacity={0.7} />))}
+    {range(0, 3).map((i) => (<Rect key={`h${i}`} x={x - 36} y={y - 50 + i * 7} width={74} height={0.8} fill="#ffffff" opacity={0.7} />))}
+    <Rect x={x - 37} y={y - 54} width={76} height={3.4} fill="#ffffff" />
+    <Circle cx={x + 6} cy={y - 92} r={6} fill="#ffffff" stroke="#e74c3c" strokeWidth={1.6} />
+    <Path d={`M${x} ${y - 92} Q${x + 6} ${y - 97} ${x + 12} ${y - 92}`} stroke="#2f86d6" strokeWidth={1.4} fill="none" />
   </G>
 );
 
@@ -168,32 +292,69 @@ const ART = {
     </G>),
   },
 
-  pamukkale: {
-    grads: [['far', '#8fb8d4', '#d9ecf5'], ['trav', '#ffffff', '#d9eef3'], ['pool', '#6ae8e4', '#1fb0c2'], ['stone', '#eee7d6', '#cfc6af']],
+  ege: {
+    tile: 1800, // 3 kat uzun: sahne geç tekrar eder
+    grads: [['far', '#86b4cc', '#cfe6ef'], ['sea', '#58d3dc', '#1a86b4'], ['hill', '#5f9f5b', '#2d6a47']],
     layers: [
-      { factor: 0.05, draw: () => (<G>{cloud(100, 130, 1.3, '#fff', 0.95, 1, 1.6)}{cloud(380, 80, 1, '#fff', 0.9, 2, 1.6)}{cloud(520, 210, 1.1, '#fff', 0.9, 3, 1.6)}</G>) },
+      { factor: 0.05, draw: () => (<G>
+        {[[100, 110, 1.3], [390, 60, 1], [520, 190, 1.1], [760, 90, 1.2], [1020, 170, 1], [1250, 60, 1.4], [1480, 130, 1.1], [1680, 200, 1], [1700, 70, 0.9]].map(([x, y, sc], i) => cloud(x, y, sc, '#fff', 0.88, i, 1.5))}
+      </G>) },
       { factor: 0.1, draw: () => (<G>
-        <Path d={ridge([[0, 500], [70, 455], [140, 490], [230, 420], [310, 480], [400, 440], [480, 490], [540, 460], [600, 500]])} fill={P('far')} />
-        <Path d={ridge([[0, 545], [100, 520], [200, 548], [320, 515], [430, 548], [520, 525], [600, 545]])} fill="#bcd9e8" />
+        {[
+          [[0, 520], [70, 480], [150, 505], [230, 455], [320, 500], [400, 470], [490, 510], [560, 490], [600, 520]],
+          [[0, 520], [90, 495], [180, 450], [260, 485], [350, 440], [430, 480], [520, 500], [600, 520]],
+          [[0, 520], [100, 500], [190, 478], [300, 505], [380, 465], [470, 490], [540, 470], [600, 520]],
+        ].map((pts, i) => (<Path key={`a${i}`} d={`M${i * 600} ${H} ${pts.map(([x, y]) => `L${i * 600 + x} ${y}`).join(' ')} L${i * 600 + 600} ${H} Z`} fill={EG('far')} />))}
+        {[0, 1, 2].map((i) => (<Path key={`b${i}`} d={`M${i * 600} ${H} L${i * 600} 548 Q${i * 600 + 150} ${524 + i * 6} ${i * 600 + 300} 546 Q${i * 600 + 450} ${526 + i * 4} ${i * 600 + 600} 548 L${i * 600 + 600} ${H} Z`} fill="#a9cde0" />))}
       </G>) },
       { factor: 0.25, draw: () => (<G>
-        <Path d={`M90 ${GY + 6} L90 ${GY - 70} A40 40 0 0 1 170 ${GY - 70} L170 ${GY + 6}Z`} fill={P('stone')} />
-        <Path d={`M104 ${GY + 6} L104 ${GY - 62} A26 26 0 0 1 156 ${GY - 62} L156 ${GY + 6}Z`} fill="#8c8473" opacity={0.55} />
-        <Rect x={312} y={GY - 94} width={106} height={8} fill="#e6dfcb" />
-        {[[320, 80], [348, 80], [376, 52], [404, 80], [440, 34]].map(([x, h], i) => column(x, h, i))}
-        {[230, 252, 540, 562].map((x, i) => (<G key={`c${i}`}><Rect x={x - 1.5} y={GY - 10} width={3} height={14} fill="#4a3a2a" /><Ellipse cx={x} cy={GY - 44} rx={9} ry={38} fill="#3f7a55" /></G>))}
+        <Rect x={0} y={560} width={1800} height={H - 560} fill={EG('sea')} />
+        <Rect x={0} y={560} width={1800} height={16} fill="#a6eef0" opacity={0.5} />
+        {range(0, 27).map((i) => (<Rect key={`sp${i}`} x={30 + i * 66} y={596 + ((i * 37) % 90)} width={30 + ((i * 13) % 34)} height={2.4} rx={1.2} fill="#ffffff" opacity={0.45} />))}
+        {/* çam kaplı tepe (solda) */}
+        {egeHill('hA')}
+        {/* ortada küçük ada */}
+        <Ellipse cx={1010} cy={598} rx={78} ry={9} fill="#ffffff" opacity={0.55} />
+        <Path d="M944 598 Q972 546 1014 550 Q1056 554 1078 598 Z" fill={EG('hill')} />
+        {egePine(985, 566, 0.5, 'i1')}{egePine(1015, 556, 0.6, 'i2')}{egePine(1045, 570, 0.45, 'i3')}
+        {/* aynalanmış ikinci tepe (sağda) */}
+        <G transform="translate(2100 0) scale(-1 1)">{egeHill('hB')}</G>
       </G>) },
       { factor: 0.5, draw: () => (<G>
-        <Path d={ridge([[0, 560], [100, 538], [220, 556], [340, 534], [460, 552], [560, 538], [600, 560]])} fill={P('trav')} />
-        {[[120, 566, 52], [290, 562, 56], [470, 568, 50]].map(([x, y, r], i) => pool(x, y, r, `a${i}`))}
-        {[[60, 618, 48], [210, 614, 52], [380, 620, 50], [540, 616, 48]].map(([x, y, r], i) => pool(x, y, r, `b${i}`))}
-        {[[140, 668, 56], [300, 672, 58], [460, 666, 56]].map(([x, y, r], i) => pool(x, y, r, `c${i}`))}
+        {/* denizde: tekneler, gulet, jet-ski, yüzenler */}
+        {egeGulet(150, 612, 1, 'g1')}{egeBoat(335, 640, 0.9, 'b1')}{egeBoat(500, 604, 0.6, 'b2')}
+        {egeJet(690, 652, 1, '#e74c3c', SKIN[0], 'j1')}
+        {egeSwimmer(850, 656, SKIN[1], 'sw1')}{egeSwimmer(905, 668, SKIN[0], 'sw2')}
+        {egeBoat(1010, 620, 0.7, 'b3')}
+        {egeGulet(1190, 610, 0.85, 'g2')}
+        {egeJet(1380, 646, 1, '#2f86d6', SKIN[2], 'j2')}
+        {egeBoat(1520, 636, 0.85, 'b4')}{egeSwimmer(1640, 660, SKIN[1], 'sw3')}{egeBoat(1730, 606, 0.55, 'b5')}
+        {/* dalga köpüğü + kumsal */}
+        <Path d={waveT(664, 4, 15, 1, null)} stroke="#ffffff" strokeWidth={4} fill="none" opacity={0.85} />
+        <Path d={waveT(668, 5, 9, 0, H)} fill="#f8e7b8" />
+        <Path d={waveT(668, 5, 9, 0, null)} stroke="#e9c985" strokeWidth={2} fill="none" opacity={0.6} />
+        {/* palmiyeler */}
+        {[38, 430, 770, 1130, 1480, 1740].map((x, i) => egePalm(x, 700 + (i % 2) * 2, 0.9 + (i % 3) * 0.08, `pl${i}`))}
+        {/* şemsiye + şezlong grupları */}
+        {[[120, '#e74c3c'], [330, '#2f86d6'], [560, '#f39c12'], [1200, '#e74c3c'], [1420, '#1abc9c'], [1640, '#2f86d6']].map(([x, c], i) => (<G key={`u${i}`}>{egeParasol(x, 706, 0.9, c, 'p')}{egeLounger(x - 26, 706, 0.85, c, 'l1')}{egeLounger(x + 28, 706, 0.85, c, 'l2')}</G>))}
+        {/* güneşlenenler */}
+        {egeSunbather(94, 706, 0.85, SKIN[0], '#e74c3c', 'sb1')}{egeSunbather(1174, 706, 0.85, SKIN[1], '#2f86d6', 'sb2')}{egeSunbather(1614, 706, 0.85, SKIN[2], '#f39c12', 'sb3')}
+        {/* voleybol sahası: file + oyuncular */}
+        {egeNet(930, 706, 'net')}
+        {egePerson(880, 706, 0.9, SKIN[0], '#2f86d6', '#2b2f3a', true, 'v1')}
+        {egePerson(985, 700, 0.9, SKIN[2], '#f39c12', '#1f6f5a', true, 'v2')}
+        {egePerson(1030, 706, 0.9, SKIN[1], '#e74c3c', '#2b2f3a', false, 'v3')}
+        {/* gezenler */}
+        {egePerson(690, 706, 0.9, SKIN[1], '#9b59b6', '#f5f5f5', false, 'w1')}
+        {egePerson(1300, 706, 0.9, SKIN[0], '#1abc9c', '#2b2f3a', false, 'w2')}
       </G>) },
     ],
     ground: () => (<G>
-      {groundBase('#ffffff', '#e1f1f5', 14)}
-      {range(0, 5).map((i) => (<G key={i}><Ellipse cx={60 + i * 100} cy={GY + 48} rx={34} ry={9} fill="#fff" /><Ellipse cx={60 + i * 100} cy={GY + 46} rx={28} ry={7} fill="#4fd1d1" opacity={0.9} /></G>))}
-      {range(0, 5).map((i) => (<Ellipse key={`s${i}`} cx={110 + i * 100} cy={GY + 74} rx={22} ry={5} fill="#4fd1d1" opacity={0.6} />))}
+      <Rect x={0} y={GY} width={1800} height={H - GY} fill="#e6c680" />
+      <Rect x={0} y={GY} width={1800} height={12} fill="#f3dca2" />
+      {range(0, 17).map((i) => (<Ellipse key={i} cx={50 + i * 105} cy={GY + 40 + (i % 2) * 16} rx={14} ry={4} fill="#d8b26a" opacity={0.7} />))}
+      {range(0, 22).map((i) => (<Circle key={`d${i}`} cx={20 + i * 78} cy={GY + 66 - (i % 3) * 10} r={2.2} fill="#d4ad62" />))}
+      {range(0, 8).map((i) => (<G key={`s${i}`}><Path d={`M${90 + i * 215} ${GY + 26} q6 -10 12 0 z`} fill="#fff1ea" /><Path d={`M${96 + i * 215} ${GY + 26} l0 -8 M${92 + i * 215} ${GY + 26} l1 -6 M${100 + i * 215} ${GY + 26} l-1 -6`} stroke="#e9b7a3" strokeWidth={1} /></G>))}
     </G>),
   },
 
@@ -297,9 +458,10 @@ function S2(n) { return `url(#g-istanbul-${n})`; }
 /* ---------- çizim bileşenleri ---------- */
 const LayerArt = memo(({ id, index, ground, s }) => {
   const def = ART[id];
+  const tile = def.tile || TILE; // Ege gibi uzun haritalar kendi genişliğini belirler
   const draw = ground ? def.ground : def.layers[index].draw;
   return (
-    <Svg width={2 * TILE * s} height={H * s} viewBox={`0 0 ${2 * TILE} ${H}`}>
+    <Svg width={2 * tile * s} height={H * s} viewBox={`0 0 ${2 * tile} ${H}`}>
       <Defs>
         {def.grads.map(([n, a, b]) => (
           <LinearGradient key={n} id={`g-${id}-${n}`} x1="0" y1="0" x2="0" y2="1">
@@ -309,13 +471,13 @@ const LayerArt = memo(({ id, index, ground, s }) => {
         ))}
       </Defs>
       <G>{draw()}</G>
-      <G transform={`translate(${TILE} 0)`}>{draw()}</G>
+      <G transform={`translate(${tile} 0)`}>{draw()}</G>
     </Svg>
   );
 });
 
 const Layer = ({ id, index, ground, factor, s, scroll }) => (
-  <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * factor) % TILE) * s }] }}>
+  <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * factor) % (ART[id].tile || TILE)) * s }] }}>
     <LayerArt id={id} index={index} ground={ground} s={s} />
   </View>
 );

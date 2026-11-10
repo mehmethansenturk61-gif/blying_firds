@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Backdrop, Button, hoverFx } from '../components/UI';
 import { BirdIcon } from '../components/Birds';
 import { CHARACTERS } from '../constants/characters';
@@ -11,6 +11,7 @@ export default function CharacterScreen({ profile, onSelect, onBack }) {
       <Backdrop themeId={profile.background} dim={0.25} />
       <View style={[styles.content, { paddingTop: TOP_INSET + 20 }]}>
         <Text style={styles.title}>Karakter Seç</Text>
+        <ScrollView style={{ width: '100%' }} showsVerticalScrollIndicator={false}>
         <View style={styles.grid}>
           {CHARACTERS.map((c) => {
             const active = profile.character === c.id;
@@ -23,6 +24,7 @@ export default function CharacterScreen({ profile, onSelect, onBack }) {
             );
           })}
         </View>
+        </ScrollView>
         <Button title="Geri" color="gray" onPress={onBack} style={{ marginTop: 8 }} />
       </View>
     </View>

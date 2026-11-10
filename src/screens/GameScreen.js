@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { View, Text, Pressable, Platform, Animated, AppState, StyleSheet } from 'react-native';
-import Svg, { G, Circle, Ellipse } from 'react-native-svg';
+import Svg, { G, Circle, Ellipse, Path } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
 import Branch from '../components/Branch';
 import { BirdArt, BirdIcon } from '../components/Birds';
@@ -140,7 +140,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       {game.particles.length ? (
         <View pointerEvents="none" style={FILL}>
           <Svg width={w} height={h} viewBox={`0 0 ${W} ${WORLD_H}`}>
-            {game.particles.map((p) => <Particle key={p.id} p={p} />)}
+            {game.particles.map((p) => <Particle key={p.id} p={p} colors={theme.dust || ['#e6d5b5', '#c9b48a']} />)}
           </Svg>
         </View>
       ) : null}
@@ -222,7 +222,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
 }
 
 // Tek efekt parçacığı: damla / halka / toz
-function Particle({ p }) {
+function Particle({ p, colors }) {
   if (p.age < 0) return null;
   const k = p.age / p.life; // 0 → 1
   if (p.kind === 'ring') {
@@ -232,7 +232,22 @@ function Particle({ p }) {
   if (p.kind === 'drop') {
     return <Circle cx={p.x} cy={p.y} r={p.r * (1 - k * 0.4)} fill="#bfe8ff" stroke="#ffffff" strokeWidth={1} opacity={1 - k * 0.7} />;
   }
-  return <Circle cx={p.x} cy={p.y} r={p.r * (1 + k * 1.6)} fill="#e6d5b5" opacity={(1 - k) * 0.7} />;
+  if (p.kind === 'dring') {
+    const r = p.r + p.age * 210;
+    return <Ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.16} fill="none" stroke={colors[0]} strokeWidth={5 * (1 - k) + 1} opacity={(1 - k) * 0.8} />;
+  }
+  if (p.kind === 'grain') {
+    return <Circle cx={p.x} cy={p.y} r={p.r} fill={colors[p.c]} opacity={k > 0.7 ? 1 - (k - 0.7) / 0.3 : 1} />;
+  }
+  if (p.kind === 'feather') {
+    return (
+      <G transform={`translate(${p.x} ${p.y}) rotate(${p.rot})`} opacity={k > 0.65 ? 1 - (k - 0.65) / 0.35 : 1}>
+        <Ellipse cx={0} cy={0} rx={p.r} ry={p.r * 0.3} fill="#f7f1e6" stroke="#cfc3ae" strokeWidth={0.8} />
+        <Path d={`M${-p.r} 0 L${p.r} 0`} stroke="#bfae94" strokeWidth={0.9} />
+      </G>
+    );
+  }
+  return <Circle cx={p.x} cy={p.y} r={p.r * (1 + k * 1.6)} fill={colors[0]} opacity={(1 - k) * 0.65} />;
 }
 
 const COUNT_COLORS = { 3: '#ffd23f', 2: '#ff9f1c', 1: '#2ecc71' };

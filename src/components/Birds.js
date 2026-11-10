@@ -208,6 +208,136 @@ export function BirdArt({ type, wing = 0, dead = false }) {
           </G>
         </G>
       );
+    case 'canary':
+      return (
+        <G>
+          <Defs>
+            <LinearGradient id="cnBody" gradientUnits="userSpaceOnUse" x1="0" y1="-26" x2="0" y2="22">
+              <Stop offset="0" stopColor="#fff07a" />
+              <Stop offset="0.55" stopColor="#ffd21f" />
+              <Stop offset="1" stopColor="#f0a500" />
+            </LinearGradient>
+            <LinearGradient id="cnBelly" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="#fff6a8" />
+              <Stop offset="1" stopColor="#ffe34d" />
+            </LinearGradient>
+          </Defs>
+          {/* Kuyruk: üç yelpaze tüy, uçları açık */}
+          <Ellipse cx={-33} cy={2} rx={15} ry={4.4} fill="#d99a00" transform="rotate(-15 -18 2)" />
+          <Ellipse cx={-34} cy={2} rx={16} ry={4.6} fill="#eab308" transform="rotate(0 -18 2)" />
+          <Ellipse cx={-33} cy={2} rx={15} ry={4.4} fill="#d99a00" transform="rotate(15 -18 2)" />
+          <Ellipse cx={-46} cy={2} rx={3.2} ry={3.2} fill="#fff3a0" />
+          {/* Bacaklar */}
+          <Path d="M-3 18 L-3 25 M-3 25 L-8 27.5 M-3 25 L-3 28.5 M-3 25 L2 27.5 M8 19 L8 25.5 M8 25.5 L3 28 M8 25.5 L8 29 M8 25.5 L13 28" stroke="#ff9a6b" strokeWidth={2.2} strokeLinecap="round" fill="none" />
+          {/* Tepe tüyleri */}
+          <Path d="M3 -17 Q1 -28 9 -26 Q6 -22 10 -20 Z" fill="#ffc400" />
+          <Path d="M9 -19 Q10 -28 17 -25 Q14 -22 15 -18 Z" fill="#ffe14d" />
+          {/* Gövde ve kafa */}
+          <Ellipse cx={0} cy={1} rx={25} ry={20} fill="url(#cnBody)" />
+          <Circle cx={11} cy={-6} r={14.5} fill="url(#cnBody)" />
+          {/* Karın: açık sarı, tüy pulları */}
+          <Path d="M-10 10 Q-2 -2 14 4 Q22 12 14 18 Q2 24 -10 10 Z" fill="url(#cnBelly)" />
+          <Path d="M-2 10 q3 3 6 0 M5 10 q3 3 6 0 M-5 15 q3 3 6 0 M2 15 q3 3 6 0 M9 14 q3 3 6 0" stroke="#e6b800" strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.7} />
+          {/* Yanak: hafif allık */}
+          <Circle cx={16} cy={0} r={3.6} fill="#ff9d6e" opacity={0.45} />
+          {/* Göz */}
+          <Circle cx={16} cy={-8} r={6.2} fill="#fffbe0" stroke="#d99a00" strokeWidth={1} />
+          {dead ? (
+            <Cross cx={16.4} cy={-7.8} s={4} w={2.4} />
+          ) : (
+            <>
+              <Circle cx={17.2} cy={-7.8} r={3.9} fill="#1b1308" />
+              <Circle cx={18.7} cy={-9.4} r={1.5} fill="#ffffff" />
+              <Circle cx={16} cy={-6} r={0.8} fill="#ffffff" opacity={0.8} />
+            </>
+          )}
+          <Path d="M10 -13.5 Q16 -16.5 22 -12.5" stroke="#c98a00" strokeWidth={1.7} strokeLinecap="round" fill="none" />
+          {/* Gaga: kısa, turuncu-pembe */}
+          <Path d="M24 -6 Q31.5 -5 34.5 -0.8 Q29 1.4 24 -0.8 Z" fill="#ff9f43" />
+          <Path d="M24 -0.8 Q29 1.4 34.5 -0.8 Q30.5 3.8 24 2.8 Z" fill="#e8742a" />
+          <Path d="M26 -5 Q30 -4.6 32.5 -2.4" stroke="#ffe0b0" strokeWidth={1} strokeLinecap="round" fill="none" opacity={0.85} />
+          {/* Kanat: koyu sarı, uçları zeytin tonlu */}
+          <G transform={`translate(-2 3) rotate(${wing})`}>
+            <Ellipse cx={-22} cy={0} rx={12} ry={4.6} fill="#b98400" transform="rotate(-13)" />
+            <Ellipse cx={-23} cy={0} rx={13} ry={4.8} fill="#d29a00" transform="rotate(-2)" />
+            <Ellipse cx={-21} cy={0} rx={12} ry={4.6} fill="#b98400" transform="rotate(9)" />
+            <Ellipse cx={-9} cy={0} rx={17} ry={9.2} fill="#f2b705" />
+            <Ellipse cx={-8} cy={-2.6} rx={12} ry={4.2} fill="#ffe66d" opacity={0.9} />
+            <Path d="M-20 3 Q-12 7 -2 4 M-18 -1 Q-12 2 -5 1" stroke="#c98a00" strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.7} />
+            <Path d="M-22 1.5 Q-12 5 -1 2.5" stroke="#fff7b0" strokeWidth={1.6} strokeLinecap="round" fill="none" opacity={0.85} />
+          </G>
+        </G>
+      );
+    case 'vulture':
+      return (
+        <G>
+          <Defs>
+            <LinearGradient id="vtBody" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="#5a4636" />
+              <Stop offset="1" stopColor="#1f1711" />
+            </LinearGradient>
+            <LinearGradient id="vtHead" gradientUnits="userSpaceOnUse" x1="0" y1="-24" x2="0" y2="0">
+              <Stop offset="0" stopColor="#e9a08e" />
+              <Stop offset="1" stopColor="#b9685a" />
+            </LinearGradient>
+            <LinearGradient id="vtRuff" gradientUnits="userSpaceOnUse" x1="0" y1="-12" x2="0" y2="6">
+              <Stop offset="0" stopColor="#fffaf0" />
+              <Stop offset="1" stopColor="#e2d3b4" />
+            </LinearGradient>
+          </Defs>
+          {/* Kuyruk: koyu, kısa yelpaze */}
+          <Path d="M-18 -4 L-42 -10 Q-46 -5 -42 -1 L-18 3 Z" fill="#2a1f16" />
+          <Path d="M-18 0 L-44 -1 Q-47 4 -43 7 L-18 6 Z" fill="#37291d" />
+          <Path d="M-18 3 L-42 10 Q-45 14 -40 15 L-17 9 Z" fill="#2a1f16" />
+          {/* Bacaklar ve pençeler: soluk pembe-gri */}
+          <Path d="M-4 17 L-4 25 M-4 25 L-9 28 M-4 25 L-4 29 M-4 25 L1 28 M8 17 L8 25 M8 25 L3 28 M8 25 L8 29 M8 25 L13 28" stroke="#c4a79b" strokeWidth={2.6} strokeLinecap="round" fill="none" />
+          <Path d="M-9 28 L-10.5 30 M-4 29 L-4 31 M1 28 L2.5 30 M3 28 L1.5 30 M8 29 L8 31 M13 28 L14.5 30" stroke="#3a2c20" strokeWidth={1.6} strokeLinecap="round" />
+          {/* Gövde: koyu kahve, tüy pulları */}
+          <Ellipse cx={0} cy={2} rx={27} ry={20} fill="url(#vtBody)" />
+          <Path d="M-16 5 q4 4 8 0 M-8 10 q4 4 8 0 M0 5 q4 4 8 0 M-12 13 q4 4 8 0 M4 11 q4 4 8 0 M-20 -2 q4 4 8 0" stroke="#8a7050" strokeWidth={1.5} strokeLinecap="round" fill="none" opacity={0.6} />
+          {/* Boyun: çıplak, kırışık deri */}
+          <Path d="M8 -4 Q9 -14 16 -17 L24 -10 Q20 -4 18 2 Z" fill="url(#vtHead)" />
+          <Path d="M12 -6 q4 1.5 8 -1 M11 -1 q4 1.5 8 -1" stroke="#8f4a3e" strokeWidth={1.1} strokeLinecap="round" fill="none" opacity={0.7} />
+          {/* Beyaz tüy yakalık */}
+          <Ellipse cx={8} cy={0} rx={15} ry={8} fill="url(#vtRuff)" />
+          <Path d="M-5 3 q3 4 6 0 M1 5 q3 4 6 0 M7 5 q3 4 6 0 M13 3 q3 4 6 0 M-1 -3 q3 3 6 0 M6 -4 q3 3 6 0 M13 -4 q3 3 6 0" stroke="#bfae8c" strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.85} />
+          {/* Çıplak kel kafa */}
+          <Circle cx={21} cy={-12} r={12.5} fill="url(#vtHead)" />
+          <Path d="M13 -20 Q19 -25 26 -21 M12 -13 q2 3 5 3" stroke="#c97c6c" strokeWidth={1.2} strokeLinecap="round" fill="none" opacity={0.8} />
+          {/* Göz: sert bakış, kalın kaş çıkıntısı */}
+          <Circle cx={24.5} cy={-11.5} r={4.6} fill="#ffcf4a" />
+          {dead ? (
+            <Cross cx={24.5} cy={-11.5} s={3.6} w={2} />
+          ) : (
+            <>
+              <Circle cx={25.2} cy={-11.5} r={2.4} fill="#141414" />
+              <Circle cx={26} cy={-12.6} r={0.9} fill="#fff" />
+            </>
+          )}
+          <Path d="M16 -21 L31 -15.5" stroke="#6b2f27" strokeWidth={2.8} strokeLinecap="round" />
+          {/* Kıvrık gri gaga, sarı mum zar */}
+          <G transform="translate(3 3.5)">
+          <Path d="M29 -17 Q41 -19 45 -9.5 Q45.5 -5 41 -2.5 Q41.5 -8 37 -9.5 Q32 -9.5 29 -7.5 Z" fill="#8e969e" />
+          <Path d="M29 -7.5 Q35 -8 39 -6 Q36 -2 30 -3 Z" fill="#b9c0c7" />
+          <Ellipse cx={31.5} cy={-12.5} rx={3.4} ry={3.8} fill="#e6c25a" />
+          <Ellipse cx={33.5} cy={-12} rx={1.1} ry={0.8} fill="#4a3a10" />
+          <Path d="M32 -16 Q39 -17 43 -12.5" stroke="#d3d8dd" strokeWidth={1.1} strokeLinecap="round" fill="none" opacity={0.7} />
+          </G>
+          {/* Kanat: geniş, parmaklı birincil tüyler, krem kenarlı örtü tüyleri */}
+          <G transform={`translate(-2 3) rotate(${wing})`}>
+            <Ellipse cx={-27} cy={0} rx={17} ry={3.9} fill="#1d150e" transform="rotate(-17)" />
+            <Ellipse cx={-29} cy={0} rx={18} ry={3.9} fill="#2a1f16" transform="rotate(-8)" />
+            <Ellipse cx={-30} cy={0} rx={18} ry={3.9} fill="#1d150e" transform="rotate(1)" />
+            <Ellipse cx={-28} cy={0} rx={17} ry={3.9} fill="#2a1f16" transform="rotate(10)" />
+            <Ellipse cx={-24} cy={0} rx={14} ry={3.7} fill="#1d150e" transform="rotate(19)" />
+            <Ellipse cx={-11} cy={-1} rx={17} ry={9.6} fill="#3d2d20" />
+            <Ellipse cx={-9} cy={-3} rx={12} ry={5} fill="#5e4833" opacity={0.85} />
+            <Path d="M-24 -2 Q-13 -10 0 -6 M-22 3 Q-12 8 -1 4" stroke="#cdb893" strokeWidth={1.5} strokeLinecap="round" fill="none" opacity={0.7} />
+            <Circle cx={-14} cy={1} r={1.2} fill="#cdb893" opacity={0.8} />
+            <Circle cx={-7} cy={2.5} r={1.2} fill="#cdb893" opacity={0.8} />
+          </G>
+        </G>
+      );
     case 'bird':
     default:
       return (
