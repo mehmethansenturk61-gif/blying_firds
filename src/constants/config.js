@@ -40,6 +40,7 @@ export const MODES = {
   triple: { id: 'triple', name: 'Trio', lives: 3, desc: 'Üç can. Çarpınca bir can gider, kısa süre dokunulmaz olursun.' },
 };
 
-export const HISTORY_LIMIT = 10;
+export const HISTORY_LIMIT = 30; // son oyunlar listesi
+export const TOP_LIMIT = 10;     // tüm zamanların en iyi skorları
 export const NICK_MIN = 2;
 export const NICK_MAX = 12;

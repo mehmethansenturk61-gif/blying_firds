@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Backdrop, Button } from '../components/UI';
+import { Backdrop, Button, hoverFx } from '../components/UI';
 import { BirdIcon } from '../components/Birds';
 import { CHARACTERS } from '../constants/characters';
 import { TOP_INSET } from '../constants/config';
@@ -15,7 +15,7 @@ export default function CharacterScreen({ profile, onSelect, onBack }) {
           {CHARACTERS.map((c) => {
             const active = profile.character === c.id;
             return (
-              <Pressable key={c.id} onPress={() => onSelect(c.id)} style={[styles.card, active && styles.cardActive]}>
+              <Pressable key={c.id} onPress={() => onSelect(c.id)} style={({ pressed, hovered }) => [styles.card, active && styles.cardActive, hoverFx(hovered, pressed, 5)]}>
                 <BirdIcon type={c.id} size={96} />
                 <Text style={styles.name}>{c.name}</Text>
                 {active ? <Text style={styles.badge}>Seçili</Text> : null}

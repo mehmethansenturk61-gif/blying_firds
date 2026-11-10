@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Backdrop, Button, Hearts } from '../components/UI';
+import { Backdrop, Button, Hearts, hoverFx } from '../components/UI';
 import { MODES, TOP_INSET } from '../constants/config';
 import { getScores } from '../storage/storage';
 
@@ -15,7 +15,7 @@ export default function ModeScreen({ profile, onStart, onBack }) {
       <View style={[styles.content, { paddingTop: TOP_INSET + 20 }]}>
         <Text style={styles.title}>Mod Seç</Text>
         {Object.values(MODES).map((m) => (
-          <Pressable key={m.id} onPress={() => onStart(m.id)} style={({ pressed }) => [styles.card, pressed && { transform: [{ translateY: 3 }] }]}>
+          <Pressable key={m.id} onPress={() => onStart(m.id)} style={({ pressed, hovered }) => [styles.card, hoverFx(hovered, pressed, 4), pressed && { transform: [{ translateY: 3 }] }]}>
             <Text style={styles.cardTitle}>{m.name}</Text>
             <Hearts lives={m.lives} max={m.lives} size={30} />
             <Text style={styles.desc}>{m.desc}</Text>

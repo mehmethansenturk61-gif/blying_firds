@@ -4,16 +4,48 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const GROUND_Y = H - L.GROUND_H;
 
-export function createGame(worldW, mode) {
+export function createGame(worldW, mode, water = false) {
   const g = {
     W: worldW, mode, phase: 'ready', // ready | playing | dead | over
     t: 0, flapTimer: 0, scroll: 0, speed: B.START_SPEED, score: 0,
     lives: MODES[mode].lives, invincible: 0, deadTimer: 0, spawned: 0,
     bird: { x: worldW * L.BIRD_X_RATIO, y: H * 0.4, vy: 0, angle: 0 },
     obstacles: [],
+    water, particles: [], pid: 0, landed: false, landT: 0, burstCd: 0,
   };
   fillObstacles(g);
   return g;
+}
+
+// Yere/denize çarpma efekti: su varsa damlalar + halkalar, yoksa toz bulutu
+function burst(g, power) {
+  const { x } = g.bird;
+  const add = (p) => g.particles.push({ id: g.pid++, vx: 0, vy: 0, age: 0, ...p });
+  if (g.water) {
+    const n = Math.round(8 * power) + 4;
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + rand(-0.9, 0.9), sp = rand(130, 300) * (0.55 + power * 0.55);
+      add({ kind: 'drop', x: x + rand(-10, 10), y: GROUND_Y + 2, vx: Math.cos(a) * sp * 0.6, vy: Math.sin(a) * sp, life: rand(0.55, 0.9), r: rand(2.5, 5.5) });
+    }
+    for (let k = 0; k < 3; k++) add({ kind: 'ring', x, y: GROUND_Y + 8 + k * 3, age: -k * 0.12, life: 0.9, r: 8 });
+  } else {
+    const n = Math.round(7 * power) + 3;
+    for (let i = 0; i < n; i++) {
+      add({ kind: 'dust', x: x + rand(-14, 14), y: GROUND_Y - 2, vx: rand(-110, 110), vy: rand(-90, -20), life: rand(0.6, 1.0), r: rand(5, 11) });
+    }
+  }
+}
+
+function updateParticles(g, dt) {
+  for (const p of g.particles) {
+    p.age += dt;
+    if (p.age < 0) continue;
+    if (p.kind === 'drop') p.vy += 900 * dt;
+    if (p.kind === 'dust') p.vx *= Math.max(0, 1 - 2.5 * dt);
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+  }
+  g.particles = g.particles.filter((p) => p.age < p.life);
 }
 
 // Boşluğun o anki merkezi (hareketli engellerde sinüsle değişir)
@@ -86,6 +118,8 @@ function damage(g) {
 export function update(g, dt) {
   g.t += dt;
   g.flapTimer = Math.max(0, g.flapTimer - dt);
+  g.burstCd = Math.max(0, g.burstCd - dt);
+  updateParticles(g, dt);
   const b = g.bird;
 
   if (g.phase === 'ready') {
@@ -99,9 +133,13 @@ export function update(g, dt) {
     b.vy = Math.min(b.vy + B.GRAVITY * dt, B.MAX_FALL_SPEED);
     b.y += b.vy * dt;
     b.angle = Math.min(90, b.angle + 300 * dt);
-    if (b.y >= GROUND_Y - L.BIRD_RADIUS) {
-      b.y = GROUND_Y - L.BIRD_RADIUS;
-      if (g.deadTimer > 0.5) g.phase = 'over';
+    const floor = GROUND_Y - L.BIRD_RADIUS;
+    if (b.y >= floor) {
+      if (!g.landed) { g.landed = true; b.y = floor; burst(g, 1); }
+      g.landT += dt;
+      // Denizde kuş yavaşça batar, karada yerde kalır
+      if (g.water) { b.vy = 0; b.y = Math.min(floor + 26, b.y + 38 * dt); } else b.y = floor;
+      if (g.landT > 0.6) g.phase = 'over';
     }
     if (g.deadTimer > 1.4) g.phase = 'over';
     return;
@@ -117,6 +155,7 @@ export function update(g, dt) {
   g.speed += (target - g.speed) * Math.min(1, dt * B.SPEED_SMOOTHING);
   const dx = g.speed * dt;
   g.scroll += dx;
+  for (const p of g.particles) p.x -= dx; // efektler zeminle birlikte kayar
   g.invincible = Math.max(0, g.invincible - dt);
 
   for (const o of g.obstacles) {
@@ -135,6 +174,7 @@ export function update(g, dt) {
   if (b.y + r >= GROUND_Y) {
     b.y = GROUND_Y - r;
     b.vy = B.JUMP_VELOCITY * 0.85; // yerden sekme
+    if (g.burstCd <= 0) { burst(g, 0.6); g.burstCd = 0.3; }
     if (g.invincible <= 0) hit = true;
   }
   if (b.y - r <= 0) {

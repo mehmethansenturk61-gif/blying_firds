@@ -1,6 +1,6 @@
 import React from 'react';
-import { Pressable, Text, View, StyleSheet } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { Pressable, Text, View, StyleSheet, Platform } from 'react-native';
+import Svg, { Path, Circle, Rect } from 'react-native-svg';
 import { useFrame } from './FrameContext';
 import useTicker from '../hooks/useTicker';
 import { SceneBack, SceneGround } from './Scenes';
@@ -16,17 +16,34 @@ export const COLORS = {
   gray: ['#95a5a6', '#5f6f70'],
 };
 
+// Tüm ekran kaplayan katmanlar için (StyleSheet.absoluteFillObject yeni React Native'de kaldırıldı)
+export const FILL = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 };
+
+// Fare üstüne gelince (web/masaüstü) "tıklanabilir" hissi: el imleci, hafif yükselme, parlama ve gölge.
+// Dokunmatik cihazlarda hovered hiç true olmaz, o yüzden mobilde bir şey değişmez.
+const WEB = Platform.OS === 'web';
+export function hoverFx(hovered, pressed, lift = 3) {
+  if (!WEB) return null;
+  return {
+    cursor: 'pointer',
+    transitionProperty: 'transform, filter, box-shadow',
+    transitionDuration: '140ms',
+    ...(hovered && !pressed ? { filter: 'brightness(1.08)', boxShadow: '0 8px 18px rgba(0,0,0,0.28)', transform: [{ translateY: -lift }] } : null),
+  };
+}
+
 // Tüm düğmeler aynı boyutta ve aynı yazı büyüklüğünde: hap şeklinde, üstte ince ışık şeridi, altta koyu kenar.
 // `small` parametresi eski çağrılar bozulmasın diye kabul edilir ama artık boyutu değiştirmez.
 export function Button({ title, onPress, color = 'orange', style }) {
   const [bg, dark] = COLORS[color] || COLORS.orange;
   return (
     <Pressable onPress={onPress} style={[styles.btnWrap, style]}>
-      {({ pressed }) => (
+      {({ pressed, hovered }) => (
         <View
           style={[
             styles.btn,
             { backgroundColor: bg, borderBottomColor: dark, borderBottomWidth: pressed ? 2 : 6, transform: [{ translateY: pressed ? 4 : 0 }] },
+            hoverFx(hovered, pressed, 2),
           ]}
         >
           <View pointerEvents="none" style={styles.shine} />
@@ -75,7 +92,16 @@ export function Hearts({ lives, max, size = 26 }) {
 // Yuvarlak ses düğmesi: kind='music' (müzik) veya 'sfx' (kanat sesi vb. efektler). Kapalıyken üstü çizilir.
 export function SoundButton({ kind, on, onPress, size = 40 }) {
   return (
-    <Pressable onPress={onPress} hitSlop={6} style={[styles.round, { width: size, height: size, borderRadius: size / 2 }]}>
+    <Pressable
+      onPress={onPress}
+      hitSlop={6}
+      style={({ pressed, hovered }) => [
+        styles.round,
+        { width: size, height: size, borderRadius: size / 2 },
+        hoverFx(hovered, pressed, 2),
+        hovered && WEB ? { backgroundColor: 'rgba(0,0,0,0.5)' } : null,
+      ]}
+    >
       <Svg width={size * 0.58} height={size * 0.58} viewBox="0 0 24 24" opacity={on ? 1 : 0.7}>
         {kind === 'music' ? (
           <>
@@ -92,6 +118,16 @@ export function SoundButton({ kind, on, onPress, size = 40 }) {
         {!on ? <Path d="M3 3L21 21" stroke="#ff5d73" strokeWidth={2.8} strokeLinecap="round" /> : null}
       </Svg>
     </Pressable>
+  );
+}
+
+// Duraklat düğmesi ikonu
+export function PauseIcon({ size = 20 }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Rect x={5} y={4} width={5} height={16} rx={1.5} fill="#fff" />
+      <Rect x={14} y={4} width={5} height={16} rx={1.5} fill="#fff" />
+    </Svg>
   );
 }
 

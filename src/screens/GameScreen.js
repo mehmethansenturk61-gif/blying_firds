@@ -1,10 +1,10 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { View, Text, Pressable, Platform, Animated, StyleSheet } from 'react-native';
-import Svg, { G } from 'react-native-svg';
+import { View, Text, Pressable, Platform, Animated, AppState, StyleSheet } from 'react-native';
+import Svg, { G, Circle, Ellipse } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
 import Branch from '../components/Branch';
-import { BirdArt } from '../components/Birds';
-import { Button, Hearts, Panel, SoundControls } from '../components/UI';
+import { BirdArt, BirdIcon } from '../components/Birds';
+import { Button, Hearts, Panel, SoundControls, PauseIcon, FILL, hoverFx } from '../components/UI';
 import { useFrame } from '../components/FrameContext';
 import { BALANCE as B, LAYOUT as L, MODES, WORLD_H, TOP_INSET } from '../constants/config';
 import { createGame, update, flap, gapCenter } from '../game/engine';
@@ -16,13 +16,15 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const s = h / WORLD_H;
   const W = (WORLD_H * w) / h;
   const g = useRef(null);
-  if (!g.current) g.current = createGame(W, mode);
+  if (!g.current) g.current = createGame(W, mode, theme.id === 'istanbul'); // İstanbul'da zemin deniz
   const [, force] = useReducer((x) => x + 1, 0);
   const [result, setResult] = useState(null);
   const [best, setBest] = useState(0);
   const saved = useRef(false);
-  // Çıkış onayı: 'none' | 'confirm' (soru) | 'count' (devam etmeden önce 3-2-1)
+  // 'none' | 'confirm' (çıkış sorusu) | 'paused' (duraklatıldı) | 'count' (devam etmeden önce 3-2-1)
   const [ui, setUi] = useState('none');
+  const uiRef = useRef('none');
+  uiRef.current = ui;
   const [count, setCount] = useState(3);
   const paused = useRef(false);
 
@@ -32,6 +34,14 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
     setUi('confirm');
   };
   const cancelExit = () => { setCount(3); setUi('count'); };
+
+  // Duraklat: yalnızca oyun sürerken. Devam Et → 3-2-1 sayımı
+  const askPause = () => {
+    if (g.current.phase !== 'playing' || paused.current) return;
+    paused.current = true;
+    setUi('paused');
+  };
+  const resume = () => { setCount(3); setUi('count'); };
 
   // İptal sonrası 3 → 2 → 1 say, sonra oyuna devam et
   useEffect(() => {
@@ -65,11 +75,17 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       last = ts;
       if (!paused.current) update(g.current, dt);
       force();
-      if (g.current.phase === 'over') { finish(); return; }
+      if (g.current.phase === 'over') { finish(); if (!g.current.particles.length) return; }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => { alive = false; cancelAnimationFrame(raf); };
+  }, []);
+
+  // Uygulama arka plana giderse / sekme gizlenirse oyun otomatik duraklar
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => { if (st !== 'active') askPause(); });
+    return () => sub.remove();
   }, []);
 
   // Bu moddaki mevcut rekor (sağ üstte gösterilir)
@@ -82,6 +98,9 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
         if (!e.repeat) doFlap();
+      } else if ((e.code === 'KeyP' || e.code === 'Escape') && !e.repeat) {
+        if (uiRef.current === 'paused') resume();
+        else if (uiRef.current === 'none') askPause();
       }
     };
     window.addEventListener('keydown', onKey);
@@ -112,11 +131,19 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
             );
           })}
           <G transform={`translate(${b.x} ${b.y}) rotate(${b.angle}) scale(${L.BIRD_SCALE})`} opacity={blink ? 0.3 : 1}>
-            <BirdArt type={character} wing={game.phase === 'dead' ? 20 : wing} />
+            <BirdArt type={character} wing={game.phase === 'dead' ? 20 : wing} dead={game.phase === 'dead' || over} />
           </G>
         </Svg>
       </View>
       <SceneGround theme={theme} w={w} h={h} scroll={game.scroll} />
+      {/* Çarpma efekti: deniz (damla + halka) veya toz */}
+      {game.particles.length ? (
+        <View pointerEvents="none" style={FILL}>
+          <Svg width={w} height={h} viewBox={`0 0 ${W} ${WORLD_H}`}>
+            {game.particles.map((p) => <Particle key={p.id} p={p} />)}
+          </Svg>
+        </View>
+      ) : null}
 
       {/* HUD */}
       <View pointerEvents="none" style={[styles.hud, { top: TOP_INSET }]}>
@@ -126,9 +153,14 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
         <Text style={styles.record}>Rekor: {Math.max(best, game.score)}</Text>
         {maxLives > 1 ? <View style={{ marginTop: 4 }}><Hearts lives={game.lives} max={maxLives} size={26} /></View> : null}
       </View>
-      <Pressable onPress={askExit} style={[styles.exit, { top: TOP_INSET + 4 }]}>
+      <Pressable onPress={askExit} style={({ pressed, hovered }) => [styles.exit, { top: TOP_INSET + 4 }, hoverFx(hovered, pressed, 2)]}>
         <Text style={styles.exitText}>✕</Text>
       </Pressable>
+      {game.phase === 'playing' && ui === 'none' ? (
+        <Pressable onPress={askPause} style={({ pressed, hovered }) => [styles.exit, { top: TOP_INSET + 4, left: 62 }, hoverFx(hovered, pressed, 2)]}>
+          <PauseIcon size={20} />
+        </Pressable>
+      ) : null}
       <SoundControls vertical style={{ position: 'absolute', left: 14, top: TOP_INSET + 52 }} />
 
       {game.phase === 'ready' ? (
@@ -141,6 +173,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       {over && result ? (
         <View style={styles.overlay}>
           <Panel style={{ maxWidth: 360 }}>
+            <BirdIcon type={character} size={72} animate={false} dead />
             <Text style={styles.overTitle}>Oyun Bitti</Text>
             <Text style={styles.label}>Skor</Text>
             <Text style={styles.big}>{game.score}</Text>
@@ -170,9 +203,36 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
         </View>
       ) : null}
 
+      {ui === 'paused' ? (
+        <View style={styles.overlay}>
+          <Panel style={{ maxWidth: 360 }}>
+            <Text style={styles.pauseTitle}>Duraklatıldı</Text>
+            <Text style={styles.pauseSub}>Skor: {game.score}</Text>
+            <View style={{ width: '100%', marginTop: 14 }}>
+              <Button title="Devam Et" color="green" onPress={resume} />
+              <Button title="Ana Menü" color="blue" onPress={onExit} style={{ marginBottom: 0 }} />
+            </View>
+          </Panel>
+        </View>
+      ) : null}
+
       {ui === 'count' ? <Countdown value={count} /> : null}
     </Pressable>
   );
+}
+
+// Tek efekt parçacığı: damla / halka / toz
+function Particle({ p }) {
+  if (p.age < 0) return null;
+  const k = p.age / p.life; // 0 → 1
+  if (p.kind === 'ring') {
+    const r = p.r + p.age * 95;
+    return <Ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.26} fill="none" stroke="#eaf8ff" strokeWidth={2.4} opacity={(1 - k) * 0.85} />;
+  }
+  if (p.kind === 'drop') {
+    return <Circle cx={p.x} cy={p.y} r={p.r * (1 - k * 0.4)} fill="#bfe8ff" stroke="#ffffff" strokeWidth={1} opacity={1 - k * 0.7} />;
+  }
+  return <Circle cx={p.x} cy={p.y} r={p.r * (1 + k * 1.6)} fill="#e6d5b5" opacity={(1 - k) * 0.7} />;
 }
 
 const COUNT_COLORS = { 3: '#ffd23f', 2: '#ff9f1c', 1: '#2ecc71' };
@@ -206,12 +266,14 @@ const styles = StyleSheet.create({
   hint: { position: 'absolute', left: 0, right: 0, top: '58%', alignItems: 'center' },
   hintText: { fontSize: 26, fontWeight: '900', color: '#fff', ...shadow },
   hintSub: { fontSize: 15, fontWeight: '700', color: '#fff', marginTop: 4, ...shadow },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  overlay: { ...FILL, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: 24 },
   confirmTitle: { fontSize: 24, fontWeight: '900', color: '#3b2a5a', textAlign: 'center', marginBottom: 18 },
   confirmRow: { flexDirection: 'row', width: '100%' },
-  countWrap: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
+  countWrap: { ...FILL, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
   countText: { fontSize: 150, fontWeight: '900', textShadowColor: 'rgba(0,0,0,0.55)', textShadowOffset: { width: 0, height: 6 }, textShadowRadius: 4 },
   countHint: { fontSize: 22, fontWeight: '900', color: '#fff', marginTop: 4, ...shadow },
+  pauseTitle: { fontSize: 34, fontWeight: '900', color: '#3b2a5a' },
+  pauseSub: { fontSize: 20, fontWeight: '800', color: '#e67e22', marginTop: 4 },
   overTitle: { fontSize: 34, fontWeight: '900', color: '#c0392b' },
   label: { fontSize: 16, fontWeight: '800', color: '#777', marginTop: 8 },
   big: { fontSize: 64, fontWeight: '900', color: '#3b2a5a', lineHeight: 70 },

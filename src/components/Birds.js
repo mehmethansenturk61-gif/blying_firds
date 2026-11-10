@@ -3,7 +3,12 @@ import Svg, { G, Ellipse, Circle, Polygon, Path, Defs, LinearGradient, Stop } fr
 import useTicker from '../hooks/useTicker';
 
 // Yerel koordinat: kuş (0,0) merkezli, sağa bakar, yaklaşık 80x50 birim.
-export function BirdArt({ type, wing = 0 }) {
+// Ölü göz: çarpı işareti
+const Cross = ({ cx, cy, s = 4, w = 2.2 }) => (
+  <Path d={`M${cx - s} ${cy - s} L${cx + s} ${cy + s} M${cx + s} ${cy - s} L${cx - s} ${cy + s}`} stroke="#1b1b1b" strokeWidth={w} strokeLinecap="round" fill="none" />
+);
+
+export function BirdArt({ type, wing = 0, dead = false }) {
   switch (type) {
     case 'owl':
       return (
@@ -49,12 +54,21 @@ export function BirdArt({ type, wing = 0 }) {
           {/* Gözler: sarı iris, büyük gözbebeği */}
           <Circle cx={9} cy={-8} r={7.4} fill="#ffb800" />
           <Circle cx={26} cy={-8} r={7.4} fill="#ffb800" />
-          <Circle cx={9.6} cy={-8} r={4.4} fill="#111" />
-          <Circle cx={26.6} cy={-8} r={4.4} fill="#111" />
-          <Circle cx={11.4} cy={-10} r={1.7} fill="#fff" />
-          <Circle cx={28.4} cy={-10} r={1.7} fill="#fff" />
-          <Circle cx={8} cy={-6} r={0.9} fill="#fff" opacity={0.8} />
-          <Circle cx={25} cy={-6} r={0.9} fill="#fff" opacity={0.8} />
+          {dead ? (
+            <>
+              <Cross cx={9} cy={-8} s={4.6} w={2.6} />
+              <Cross cx={26} cy={-8} s={4.6} w={2.6} />
+            </>
+          ) : (
+            <>
+              <Circle cx={9.6} cy={-8} r={4.4} fill="#111" />
+              <Circle cx={26.6} cy={-8} r={4.4} fill="#111" />
+              <Circle cx={11.4} cy={-10} r={1.7} fill="#fff" />
+              <Circle cx={28.4} cy={-10} r={1.7} fill="#fff" />
+              <Circle cx={8} cy={-6} r={0.9} fill="#fff" opacity={0.8} />
+              <Circle cx={25} cy={-6} r={0.9} fill="#fff" opacity={0.8} />
+            </>
+          )}
           {/* Kaşlar: hafif sert bakış */}
           <Path d="M0 -15.5 Q8 -20.5 16 -14" stroke="#4a3220" strokeWidth={2.4} strokeLinecap="round" fill="none" />
           <Path d="M18 -14 Q26 -20.5 34 -15.5" stroke="#4a3220" strokeWidth={2.4} strokeLinecap="round" fill="none" />
@@ -109,8 +123,14 @@ export function BirdArt({ type, wing = 0 }) {
           {/* Sert bakış: kaş çıkıntısı + sarı göz */}
           <Path d="M11 -17 L26 -10.5 L25 -14.5 L14 -20.5 Z" fill="#d3cbb8" />
           <Circle cx={21} cy={-9} r={4.2} fill="#ffd23a" />
-          <Circle cx={21.8} cy={-9} r={2.2} fill="#111" />
-          <Circle cx={22.6} cy={-10} r={0.9} fill="#fff" />
+          {dead ? (
+            <Cross cx={21} cy={-9} s={3.6} w={2} />
+          ) : (
+            <>
+              <Circle cx={21.8} cy={-9} r={2.2} fill="#111" />
+              <Circle cx={22.6} cy={-10} r={0.9} fill="#fff" />
+            </>
+          )}
           <Path d="M15 -15 L26 -9.5" stroke="#4a2c12" strokeWidth={2.4} strokeLinecap="round" />
           {/* Kıvrık sarı gaga */}
           <Path d="M27 -12 Q39 -15 44 -6 Q45 -1 41 2 Q41 -3 37 -4 Q31 -3 27 -2 Z" fill="#ffcc1f" />
@@ -157,8 +177,14 @@ export function BirdArt({ type, wing = 0 }) {
           <Circle cx={16} cy={-7} r={12} fill="url(#glHead)" />
           {/* Göz: sarı iris, kırmızı göz çevresi */}
           <Circle cx={20} cy={-9} r={4.8} fill="#ffe27a" stroke="#e5533d" strokeWidth={1.2} />
-          <Circle cx={20.6} cy={-9} r={2.6} fill="#111" />
-          <Circle cx={21.5} cy={-10} r={0.9} fill="#fff" />
+          {dead ? (
+            <Cross cx={20} cy={-9} s={3.6} w={2} />
+          ) : (
+            <>
+              <Circle cx={20.6} cy={-9} r={2.6} fill="#111" />
+              <Circle cx={21.5} cy={-10} r={0.9} fill="#fff" />
+            </>
+          )}
           <Path d="M13 -14 Q19 -16.5 25 -13" stroke="#b7c4cd" strokeWidth={1.4} strokeLinecap="round" fill="none" />
           {/* Gaga: hafif kıvrık, alt gagada kırmızı benek */}
           <Path d="M26 -8 Q37 -8 42 -2 Q41 0 38 0 Q33 -1 26 0 Z" fill="#ffd23a" />
@@ -213,9 +239,15 @@ export function BirdArt({ type, wing = 0 }) {
           <Path d="M-10 10 Q-2 -2 14 4 Q22 12 14 18 Q2 24 -10 10 Z" fill="url(#bdBelly)" />
           {/* Göz */}
           <Circle cx={16} cy={-8} r={6.6} fill="#ffffff" />
-          <Circle cx={17.6} cy={-7.6} r={3.9} fill="#16213a" />
-          <Circle cx={19} cy={-9.2} r={1.5} fill="#ffffff" />
-          <Circle cx={16.4} cy={-5.8} r={0.8} fill="#ffffff" opacity={0.8} />
+          {dead ? (
+            <Cross cx={17} cy={-7.6} s={4.2} w={2.4} />
+          ) : (
+            <>
+              <Circle cx={17.6} cy={-7.6} r={3.9} fill="#16213a" />
+              <Circle cx={19} cy={-9.2} r={1.5} fill="#ffffff" />
+              <Circle cx={16.4} cy={-5.8} r={0.8} fill="#ffffff" opacity={0.8} />
+            </>
+          )}
           <Path d="M10 -13 Q16 -16 22 -12" stroke="#17408c" strokeWidth={1.8} strokeLinecap="round" fill="none" />
           {/* Gaga */}
           <Path d="M24 -6 Q33 -5.5 37 -0.5 Q30 0.5 24 -1 Z" fill="#ffb326" />
@@ -235,12 +267,12 @@ export function BirdArt({ type, wing = 0 }) {
   }
 }
 
-export function BirdIcon({ type, size = 80, animate = true }) {
+export function BirdIcon({ type, size = 80, animate = true, dead = false }) {
   const t = useTicker(24, animate);
   const wing = animate ? Math.sin(t * 14) * 35 : 0;
   return (
     <Svg width={size} height={size * 0.75} viewBox="-50 -36 100 75">
-      <BirdArt type={type} wing={wing} />
+      <BirdArt type={type} wing={wing} dead={dead} />
     </Svg>
   );
 }

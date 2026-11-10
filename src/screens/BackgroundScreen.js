@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Backdrop, Button } from '../components/UI';
+import { Backdrop, Button, hoverFx } from '../components/UI';
 import { SceneBack, SceneGround } from '../components/Scenes';
 import { useFrame } from '../components/FrameContext';
 import { THEMES } from '../constants/themes';
@@ -19,7 +19,7 @@ export default function BackgroundScreen({ profile, onSelect, onBack }) {
           {THEMES.map((t) => {
             const active = profile.background === t.id;
             return (
-              <Pressable key={t.id} onPress={() => onSelect(t.id)} style={[styles.card, { width: cw }, active && styles.cardActive]}>
+              <Pressable key={t.id} onPress={() => onSelect(t.id)} style={({ pressed, hovered }) => [styles.card, { width: cw }, active && styles.cardActive, hoverFx(hovered, pressed, 5)]}>
                 <View style={{ width: cw - 12, height: ch, borderRadius: 14, overflow: 'hidden' }}>
                   <SceneBack theme={t} w={cw - 12} h={ch} />
                   <SceneGround theme={t} w={cw - 12} h={ch} />
