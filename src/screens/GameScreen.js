@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, Platform, Animated, AppState, StyleSheet } from 'react-native';
 import Svg, { G, Circle, Ellipse, Path } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
@@ -16,17 +16,26 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const s = h / WORLD_H;
   const W = (WORLD_H * w) / h;
   const g = useRef(null);
-  if (!g.current) g.current = createGame(W, mode, theme.id === 'istanbul'); // İstanbul'da zemin deniz
-  const [, force] = useReducer((x) => x + 1, 0);
+  if (!g.current) g.current = createGame(W, mode, theme.id === 'istanbul');
+
+  // Performans optimizasyonu için state'leri daralttık, hareketlileri ref'e taşıdık
   const [result, setResult] = useState(null);
   const [best, setBest] = useState(0);
   const saved = useRef(false);
-  // 'none' | 'confirm' (çıkış sorusu) | 'paused' (duraklatıldı) | 'count' (devam etmeden önce 3-2-1)
+
+  // UI ve Faz durumları
   const [ui, setUi] = useState('none');
   const uiRef = useRef('none');
   uiRef.current = ui;
   const [count, setCount] = useState(3);
   const paused = useRef(false);
+  const [phase, setPhase] = useState('ready');
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(MODES[mode].lives);
+
+  // Doğrudan DOM/SVG güncellemesi için referanslar (Re-render kısı Fargo)
+  const birdGroupRef = useRef(null);
+  const obstaclesContainerRef = useRef(null);
 
   const askExit = () => {
     if (g.current.phase === 'over') { onExit(); return; }
@@ -35,7 +44,6 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   };
   const cancelExit = () => { setCount(3); setUi('count'); };
 
-  // Duraklat: yalnızca oyun sürerken. Devam Et → 3-2-1 sayımı
   const askPause = () => {
     if (g.current.phase !== 'playing' || paused.current) return;
     paused.current = true;
@@ -43,7 +51,6 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   };
   const resume = () => { setCount(3); setUi('count'); };
 
-  // İptal sonrası 3 → 2 → 1 say, sonra oyuna devam et
   useEffect(() => {
     if (ui !== 'count') return undefined;
     const id = setTimeout(() => {
@@ -53,14 +60,13 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
     return () => clearTimeout(id);
   }, [ui, count]);
 
-  // Kanat çırp: oyun başlamış/oynanıyorsa kanat sesi de çalar
   const doFlap = () => {
-    if (paused.current) return; // duraklatılmışken (çıkış sorusu / geri sayım) dokunuşlar sayılmaz
+    if (paused.current) return;
     flap(g.current);
     if (g.current.phase === 'playing') playFlap();
   };
 
-  // Oyun döngüsü: requestAnimationFrame + delta time
+  // Yüksek performanslı 60 FPS Oyun Döngüsü (requestAnimationFrame)
   useEffect(() => {
     let raf, last = null, alive = true;
     const finish = () => {
@@ -68,30 +74,56 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
       saved.current = true;
       saveResult(mode, { score: g.current.score, character }).then(setResult);
     };
+
     const loop = (ts) => {
       if (!alive) return;
       if (last === null) last = ts;
       const dt = Math.min((ts - last) / 1000, L.MAX_DT);
       last = ts;
-      if (!paused.current) update(g.current, dt);
-      force();
-      if (g.current.phase === 'over') { finish(); if (!g.current.particles.length) return; }
+
+      if (!paused.current) {
+        update(g.current, dt);
+
+        const game = g.current;
+        const b = game.bird;
+
+        // Kuş pozisyonunu re-render yaratmadan doğrudan güncelle
+        if (birdGroupRef.current) {
+          const transformStr = `translate(${b.x}, ${b.y}) rotate(${b.angle}) scale(${L.BIRD_SCALE})`;
+          if (Platform.OS === 'web') {
+            birdGroupRef.current.setAttribute('transform', transformStr);
+          } else {
+            birdGroupRef.current.setNativeProps({
+              transform: [{ translateX: b.x }, { translateY: b.y }, { rotate: `${b.angle}deg` }, { scale: L.BIRD_SCALE }]
+            });
+          }
+        }
+
+        // Skor ve can değişikliklerini hafifçe senkronize et
+        if (game.score !== score) setScore(game.score);
+        if (game.lives !== lives) setLives(game.lives);
+        if (game.phase !== phase) setPhase(game.phase);
+      }
+
+      if (g.current.phase === 'over') {
+        finish();
+        if (!g.current.particles.length) return;
+      }
+
       raf = requestAnimationFrame(loop);
     };
+
     raf = requestAnimationFrame(loop);
     return () => { alive = false; cancelAnimationFrame(raf); };
-  }, []);
+  }, [phase, score, lives]);
 
-  // Uygulama arka plana giderse / sekme gizlenirse oyun otomatik duraklar
   useEffect(() => {
     const sub = AppState.addEventListener('change', (st) => { if (st !== 'active') askPause(); });
     return () => sub.remove();
   }, []);
 
-  // Bu moddaki mevcut rekor (sağ üstte gösterilir)
   useEffect(() => { getScores(mode).then((r) => setBest(r.best)); }, []);
 
-  // Masaüstü: Boşluk / Yukarı ok tuşu
   useEffect(() => {
     if (Platform.OS !== 'web') return undefined;
     const onKey = (e) => {
@@ -108,7 +140,6 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   }, []);
 
   const game = g.current;
-  const b = game.bird;
   const blink = game.invincible > 0 && Math.floor(game.t * 12) % 2 === 0;
   const flapping = game.flapTimer > 0;
   const wing = Math.sin(game.t * (flapping ? 28 : 8)) * (flapping ? 40 : 14);
@@ -130,13 +161,13 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
               </React.Fragment>
             );
           })}
-          <G transform={`translate(${b.x} ${b.y}) rotate(${b.angle}) scale(${L.BIRD_SCALE})`} opacity={blink ? 0.3 : 1}>
+          <G ref={birdGroupRef} transform={`translate(${game.bird.x} ${game.bird.y}) rotate(${game.bird.angle}) scale(${L.BIRD_SCALE})`} opacity={blink ? 0.3 : 1}>
             <BirdArt type={character} wing={game.phase === 'dead' ? 20 : wing} dead={game.phase === 'dead' || over} />
           </G>
         </Svg>
       </View>
       <SceneGround theme={theme} w={w} h={h} scroll={game.scroll} />
-      {/* Çarpma efekti: deniz (damla + halka) veya toz */}
+      
       {game.particles.length ? (
         <View pointerEvents="none" style={FILL}>
           <Svg width={w} height={h} viewBox={`0 0 ${W} ${WORLD_H}`}>
@@ -147,11 +178,11 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
 
       {/* HUD */}
       <View pointerEvents="none" style={[styles.hud, { top: TOP_INSET }]}>
-        <Text style={styles.score}>{game.score}</Text>
+        <Text style={styles.score}>{score}</Text>
       </View>
       <View pointerEvents="none" style={[styles.right, { top: TOP_INSET + 4 }]}>
-        <Text style={styles.record}>Rekor: {Math.max(best, game.score)}</Text>
-        {maxLives > 1 ? <View style={{ marginTop: 4 }}><Hearts lives={game.lives} max={maxLives} size={26} /></View> : null}
+        <Text style={styles.record}>Rekor: {Math.max(best, score)}</Text>
+        {maxLives > 1 ? <View style={{ marginTop: 4 }}><Hearts lives={lives} max={maxLives} size={26} /></View> : null}
       </View>
       <Pressable onPress={askExit} style={({ pressed, hovered }) => [styles.exit, { top: TOP_INSET + 4 }, hoverFx(hovered, pressed, 2)]}>
         <Text style={styles.exitText}>✕</Text>
@@ -176,7 +207,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
             <BirdIcon type={character} size={72} animate={false} dead />
             <Text style={styles.overTitle}>Oyun Bitti</Text>
             <Text style={styles.label}>Skor</Text>
-            <Text style={styles.big}>{game.score}</Text>
+            <Text style={styles.big}>{score}</Text>
             <Text style={styles.recordBig}>Rekor ({MODES[mode].name}): {result.best}</Text>
             {result.isNewRecord ? <Text style={styles.newRecord}>Yeni Rekor!</Text> : null}
             <View style={{ width: '100%', marginTop: 14 }}>
@@ -207,7 +238,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
         <View style={styles.overlay}>
           <Panel style={{ maxWidth: 360 }}>
             <Text style={styles.pauseTitle}>Duraklatıldı</Text>
-            <Text style={styles.pauseSub}>Skor: {game.score}</Text>
+            <Text style={styles.pauseSub}>Skor: {score}</Text>
             <View style={{ width: '100%', marginTop: 14 }}>
               <Button title="Devam Et" color="green" onPress={resume} />
               <Button title="Ana Menü" color="blue" onPress={onExit} style={{ marginBottom: 0 }} />
@@ -221,10 +252,9 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   );
 }
 
-// Tek efekt parçacığı: damla / halka / toz
 function Particle({ p, colors }) {
   if (p.age < 0) return null;
-  const k = p.age / p.life; // 0 → 1
+  const k = p.age / p.life;
   if (p.kind === 'ring') {
     const r = p.r + p.age * 95;
     return <Ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.26} fill="none" stroke="#eaf8ff" strokeWidth={2.4} opacity={(1 - k) * 0.85} />;
@@ -252,7 +282,6 @@ function Particle({ p, colors }) {
 
 const COUNT_COLORS = { 3: '#ffd23f', 2: '#ff9f1c', 1: '#2ecc71' };
 
-// Büyük rakam yakınlaşarak belirir, küçülüp silinir
 function Countdown({ value }) {
   const a = useRef(new Animated.Value(0)).current;
   useEffect(() => {

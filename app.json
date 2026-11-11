@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BLYİNG FİRD",
-    "slug": "BLYİNG FİRD",
+    "slug": "blying-fird",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,7 +18,16 @@
       }
     },
     "web": {
-      "favicon": "./assets/icon.png"
+      "favicon": "./assets/icon.png",
+      "bundler": "metro",
+      "output": "static",
+      "pwa": {
+        "icon": "./assets/icon.png",
+        "shortName": "BlyingFird",
+        "name": "BLYİNG FİRD",
+        "backgroundColor": "#E6F4FE",
+        "themeColor": "#E6F4FE"
+      }
     },
     "plugins": [
       "expo-audio"
