@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useReducer } from 'react';
 import { View, Text, Pressable, Platform, Animated, AppState, StyleSheet } from 'react-native';
 import Svg, { G, Circle, Ellipse, Path } from 'react-native-svg';
 import { SceneBack, SceneGround } from '../components/Scenes';
@@ -18,7 +18,9 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   const g = useRef(null);
   if (!g.current) g.current = createGame(W, mode, theme.id === 'istanbul');
 
-  // Performans optimizasyonu için state'leri daralttık, hareketlileri ref'e taşıdık
+  // Ekranı 60 FPS tazelemek için zorunlu tetikleyici (Force Render Tick)
+  const [, forceRender] = useReducer((x) => x + 1, 0);
+
   const [result, setResult] = useState(null);
   const [best, setBest] = useState(0);
   const saved = useRef(false);
@@ -29,13 +31,9 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   uiRef.current = ui;
   const [count, setCount] = useState(3);
   const paused = useRef(false);
-  const [phase, setPhase] = useState('ready');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(MODES[mode].lives);
-
-  // Doğrudan DOM/SVG güncellemesi için referanslar (Re-render kısı Fargo)
-  const birdGroupRef = useRef(null);
-  const obstaclesContainerRef = useRef(null);
+  const [phase, setPhase] = useState('ready');
 
   const askExit = () => {
     if (g.current.phase === 'over') { onExit(); return; }
@@ -85,24 +83,14 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
         update(g.current, dt);
 
         const game = g.current;
-        const b = game.bird;
-
-        // Kuş pozisyonunu re-render yaratmadan doğrudan güncelle
-        if (birdGroupRef.current) {
-          const transformStr = `translate(${b.x}, ${b.y}) rotate(${b.angle}) scale(${L.BIRD_SCALE})`;
-          if (Platform.OS === 'web') {
-            birdGroupRef.current.setAttribute('transform', transformStr);
-          } else {
-            birdGroupRef.current.setNativeProps({
-              transform: [{ translateX: b.x }, { translateY: b.y }, { rotate: `${b.angle}deg` }, { scale: L.BIRD_SCALE }]
-            });
-          }
-        }
-
-        // Skor ve can değişikliklerini hafifçe senkronize et
+        
+        // Skor, can ve faz senkronizasyonu
         if (game.score !== score) setScore(game.score);
         if (game.lives !== lives) setLives(game.lives);
         if (game.phase !== phase) setPhase(game.phase);
+
+        // Web ve Mobilde ekranın donmasını önlemek için her karede bileşeni tetikle
+        forceRender();
       }
 
       if (g.current.phase === 'over') {
@@ -140,6 +128,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
   }, []);
 
   const game = g.current;
+  const b = game.bird;
   const blink = game.invincible > 0 && Math.floor(game.t * 12) % 2 === 0;
   const flapping = game.flapTimer > 0;
   const wing = Math.sin(game.t * (flapping ? 28 : 8)) * (flapping ? 40 : 14);
@@ -161,7 +150,7 @@ export default function GameScreen({ mode, character, theme, onExit, onRestart }
               </React.Fragment>
             );
           })}
-          <G ref={birdGroupRef} transform={`translate(${game.bird.x} ${game.bird.y}) rotate(${game.bird.angle}) scale(${L.BIRD_SCALE})`} opacity={blink ? 0.3 : 1}>
+          <G transform={`translate(${b.x} ${b.y}) rotate(${b.angle}) scale(${L.BIRD_SCALE})`} opacity={blink ? 0.3 : 1}>
             <BirdArt type={character} wing={game.phase === 'dead' ? 20 : wing} dead={game.phase === 'dead' || over} />
           </G>
         </Svg>
