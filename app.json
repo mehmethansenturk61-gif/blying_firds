@@ -20,7 +20,7 @@
     "web": {
       "favicon": "./assets/icon.png",
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "pwa": {
         "icon": "./assets/icon.png",
         "shortName": "BlyingFird",
@@ -30,8 +30,7 @@
       }
     },
     "plugins": [
-      "expo-audio",
-      "expo-router"
+      "expo-audio"
     ]
   }
 }
