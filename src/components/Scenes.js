@@ -48,7 +48,10 @@ const balloon = (x, y, sc, c1, c2, k) => (
   <G key={k}>
     <Path d={`M${x - 24 * sc} ${y} C${x - 24 * sc} ${y - 34 * sc} ${x + 24 * sc} ${y - 34 * sc} ${x + 24 * sc} ${y} C${x + 24 * sc} ${y + 18 * sc} ${x + 7 * sc} ${y + 30 * sc} ${x + 6 * sc} ${y + 36 * sc} L${x - 6 * sc} ${y + 36 * sc} C${x - 7 * sc} ${y + 30 * sc} ${x - 24 * sc} ${y + 18 * sc} ${x - 24 * sc} ${y}Z`} fill={c1} />
     <Path d={`M${x - 10 * sc} ${y - 2 * sc} C${x - 10 * sc} ${y - 33 * sc} ${x + 10 * sc} ${y - 33 * sc} ${x + 10 * sc} ${y - 2 * sc} C${x + 10 * sc} ${y + 16 * sc} ${x + 4 * sc} ${y + 30 * sc} ${x + 3 * sc} ${y + 36 * sc} L${x - 3 * sc} ${y + 36 * sc} C${x - 4 * sc} ${y + 30 * sc} ${x - 10 * sc} ${y + 16 * sc} ${x - 10 * sc} ${y - 2 * sc}Z`} fill={c2} />
+    <Path d={`M${x - 23 * sc} ${y + 5 * sc} Q${x} ${y + 12 * sc} ${x + 23 * sc} ${y + 5 * sc}`} stroke="#fff" strokeWidth={2.4 * sc} fill="none" opacity={0.4} />
+    <Path d={`M${x - 18 * sc} ${y + 17 * sc} Q${x} ${y + 23 * sc} ${x + 18 * sc} ${y + 17 * sc}`} stroke={c2} strokeWidth={1.6 * sc} fill="none" opacity={0.6} />
     <Ellipse cx={x - 12 * sc} cy={y - 10 * sc} rx={4 * sc} ry={11 * sc} fill="#fff" opacity={0.25} />
+    <Path d={`M${x + 24 * sc} ${y} C${x + 24 * sc} ${y + 18 * sc} ${x + 7 * sc} ${y + 30 * sc} ${x + 6 * sc} ${y + 36 * sc} L${x + 1 * sc} ${y + 36 * sc} C${x + 14 * sc} ${y + 28 * sc} ${x + 20 * sc} ${y + 14 * sc} ${x + 18 * sc} ${y - 6 * sc}Z`} fill="#000" opacity={0.1} />
     <Line x1={x - 6 * sc} y1={y + 36 * sc} x2={x - 5 * sc} y2={y + 52 * sc} stroke="#5b3a29" strokeWidth={1.4} />
     <Line x1={x + 6 * sc} y1={y + 36 * sc} x2={x + 5 * sc} y2={y + 52 * sc} stroke="#5b3a29" strokeWidth={1.4} />
     <Rect x={x - 6 * sc} y={y + 52 * sc} width={12 * sc} height={9 * sc} rx={2} fill="#7a4a2b" />
@@ -375,9 +378,14 @@ const kPath = (base, comps, bottom = H, step = 20) => {
 const kY = (base, comps, x) => comps.reduce((y, [a, k, ph]) => y + a * Math.sin((2 * Math.PI * k * x) / 1800 + ph), base);
 const kCone = (x, h, w, k) => (
   <G key={k}>
+    <Ellipse cx={x + w * 0.12} cy={GY + 9} rx={w * 0.62} ry={4} fill="#6b3a22" opacity={0.2} />
     <Path d={`M${x - w / 2} ${GY + 8} Q${x - w * 0.26} ${GY - h * 0.55} ${x - w * 0.05} ${GY - h} Q${x + w * 0.05} ${GY - h - 4} ${x + w * 0.1} ${GY - h + 2} Q${x + w * 0.26} ${GY - h * 0.55} ${x + w / 2} ${GY + 8}Z`} fill={K('chim')} />
     <Path d={`M${x + w * 0.04} ${GY - h + 2} Q${x + w * 0.26} ${GY - h * 0.55} ${x + w / 2} ${GY + 8} L${x + w * 0.06} ${GY + 8}Z`} fill="#6b3a22" opacity={0.18} />
     <Path d={`M${x - 4} ${GY - h * 0.28} L${x - 4} ${GY - h * 0.28 - 8} A4 4 0 0 1 ${x + 4} ${GY - h * 0.28 - 8} L${x + 4} ${GY - h * 0.28}Z`} fill="#5a321f" opacity={0.7} />
+    <Rect x={x - 1.5} y={GY - h * 0.62} width={4} height={6} rx={2} fill="#ffcf7a" opacity={0.9} />
+    <Path d={`M${x - w * 0.2} ${GY - h * 0.5} Q${x} ${GY - h * 0.54} ${x + w * 0.18} ${GY - h * 0.5}`} stroke="#fbe0c0" strokeWidth={1.6} fill="none" opacity={0.3} />
+    <Path d={`M${x - w * 0.13} ${GY - h * 0.74} Q${x} ${GY - h * 0.77} ${x + w * 0.1} ${GY - h * 0.74}`} stroke="#fbe0c0" strokeWidth={1.4} fill="none" opacity={0.28} />
+    <Path d={`M${x - w / 2 + w * 0.05} ${GY + 4} Q${x - w * 0.24} ${GY - h * 0.55} ${x - w * 0.05} ${GY - h + 4}`} stroke="#fff1dc" strokeWidth={1.6} fill="none" opacity={0.35} />
   </G>
 );
 const kTwin = (x, h, w, k) => (<G key={k}>{kCone(x - w * 0.22, h, w * 0.72, 'a')}{kCone(x + w * 0.26, h * 0.7, w * 0.62, 'b')}</G>);
@@ -393,6 +401,30 @@ const kCastle = (x, w, h, k) => {
   );
 };
 const kTree = (x, y, h, k) => (<G key={k}><Rect x={x - 1} y={y - 4} width={2} height={6} fill="#5a3a22" /><Ellipse cx={x} cy={y - h * 0.5} rx={h * 0.2} ry={h * 0.5} fill="#6a8040" /><Ellipse cx={x + h * 0.06} cy={y - h * 0.46} rx={h * 0.1} ry={h * 0.36} fill="#7b9250" opacity={0.7} /></G>);
+const kBoulder = (x, y, w, h, k) => (
+  <G key={k}>
+    <Path d={`M${x - w} ${y + 2} Q${x - w * 0.9} ${y - h} ${x - w * 0.1} ${y - h * 1.1} Q${x + w * 0.8} ${y - h} ${x + w} ${y + 2}Z`} fill="#c98558" />
+    <Path d={`M${x + w * 0.1} ${y - h * 1.05} Q${x + w * 0.8} ${y - h} ${x + w} ${y + 2} L${x + w * 0.1} ${y + 2}Z`} fill="#6b3a22" opacity={0.22} />
+    <Path d={`M${x - w * 0.7} ${y - h * 0.4} Q${x - w * 0.4} ${y - h * 0.85} ${x} ${y - h * 0.9}`} stroke="#f6d2b0" strokeWidth={1.4} fill="none" opacity={0.45} />
+  </G>
+);
+const kVillage = (x, k) => (
+  <G key={k}>
+    <Ellipse cx={x + 90} cy={GY + 9} rx={110} ry={5} fill="#6b3a22" opacity={0.2} />
+    {[[0, 34, 26], [30, 40, 34], [66, 30, 22], [94, 44, 38], [130, 32, 26]].map(([dx, w, h], i) => (
+      <G key={`h${i}`}>
+        <Rect x={x + dx} y={GY + 8 - h} width={w} height={h} fill={i % 2 ? '#ecc29a' : '#e0ab82'} />
+        <Rect x={x + dx} y={GY + 8 - h} width={w} height={3} fill="#f9e0c0" />
+        <Rect x={x + dx + w * 0.7} y={GY + 8 - h} width={w * 0.3} height={h} fill="#6b3a22" opacity={0.14} />
+        <Path d={`M${x + dx + w * 0.2} ${GY + 8} L${x + dx + w * 0.2} ${GY + 1} A${w * 0.1} ${w * 0.1} 0 0 1 ${x + dx + w * 0.4} ${GY + 1} L${x + dx + w * 0.4} ${GY + 8}Z`} fill="#5a321f" opacity={0.8} />
+        <Rect x={x + dx + w * 0.55} y={GY + 8 - h * 0.65} width={5} height={7} rx={2} fill="#ffcf7a" opacity={0.95} />
+      </G>
+    ))}
+    <Rect x={x + 170} y={GY - 62} width={7} height={70} fill="#f0d2b0" />
+    <Rect x={x + 167} y={GY - 40} width={13} height={3} fill="#c99870" />
+    <Path d={`M${x + 167} ${GY - 62} L${x + 173.5} ${GY - 84} L${x + 180} ${GY - 62}Z`} fill="#b86a4a" />
+  </G>
+);
 const kMistList = [[160, 540, 140, 16], [520, 575, 170, 18], [900, 530, 120, 14], [1250, 590, 160, 18], [1600, 548, 130, 15]];
 const RIDGE1 = [[38, 3, 0.3], [22, 7, 1.2], [10, 13, 2.1]];
 const RIDGE2 = [[24, 4, 1], [13, 9, 0.4], [6, 17, 2.4]];
@@ -408,9 +440,15 @@ const KB_BALLOONS = [
   [1440, 160, 0.42, '#16a085', '#fdcb6e', -1, 30, 9200],
   [1650, 230, 0.27, '#d35400', '#ffffff', 1, 18, 5200],
   [1760, 90, 0.32, '#0984e3', '#fab1a0', -1, 22, 7800],
+  // uzaktaki küçük balonlar (derinlik)
+  [240, 335, 0.17, '#ff7675', '#ffeaa7', -1, 12, 9800],
+  [690, 330, 0.15, '#74b9ff', '#ffffff', 1, 10, 10400],
+  [1130, 345, 0.16, '#a29bfe', '#ffeaa7', -1, 12, 9000],
+  [1540, 338, 0.15, '#55efc4', '#fdcb6e', 1, 10, 11000],
 ];
 const BalloonSprite = memo(({ b, s }) => {
-  const [, , sc, c1, c2, dir, amp, dur] = b;
+  const [, , sc0, c1, c2, dir, amp, dur] = b;
+  const sc = sc0 * 1.3;
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const t = (to, d) => Animated.timing(v, { toValue: to, duration: d, easing: Easing.inOut(Easing.sin), useNativeDriver: true });
@@ -421,6 +459,7 @@ const BalloonSprite = memo(({ b, s }) => {
   return (
     <Animated.View style={{ transform: [{ translateY: v }] }}>
       <Svg width={80 * sc * s} height={110 * sc * s} viewBox="0 0 80 110">
+        <Circle cx={40} cy={34} r={36} fill="#ffd9a0" opacity={0.14} />
         {balloon(40, 40, 1, c1, c2, 'bl')}
         <Circle cx={40} cy={77} r={6} fill="#ffb347" opacity={0.1} />
         <Ellipse cx={40} cy={76} rx={1.7} ry={3.6} fill="#ffb347" opacity={0.3} />
@@ -444,11 +483,14 @@ const kCap = (x, h, w, k) => {
   const cw = w * 0.5;
   return (
     <G key={k}>
+      <Ellipse cx={x + w * 0.14} cy={GY + 9} rx={w * 0.62} ry={4} fill="#6b3a22" opacity={0.2} />
       <Path d={`M${x - w / 2} ${GY + 8} Q${x - w * 0.32} ${GY - h * 0.4} ${x - w * 0.15} ${nk} L${x + w * 0.15} ${nk} Q${x + w * 0.32} ${GY - h * 0.4} ${x + w / 2} ${GY + 8}Z`} fill={K('chim')} />
       <Path d={`M${x + w * 0.03} ${nk} Q${x + w * 0.32} ${GY - h * 0.4} ${x + w / 2} ${GY + 8} L${x + w * 0.08} ${GY + 8}Z`} fill="#6b3a22" opacity={0.16} />
       <Path d={`M${x - cw / 2} ${nk + 2} Q${x - cw * 0.56} ${nk - cw * 0.32} ${x - cw * 0.1} ${nk - cw * 0.4} Q${x + cw * 0.5} ${nk - cw * 0.42} ${x + cw / 2} ${nk + 2}Z`} fill="#a86a45" />
       <Path d={`M${x - cw * 0.3} ${nk - cw * 0.2} Q${x - cw * 0.05} ${nk - cw * 0.36} ${x + cw * 0.25} ${nk - cw * 0.26}`} stroke="#d49a70" strokeWidth={2} fill="none" opacity={0.7} />
       <Rect x={x - w * 0.2} y={nk - 2} width={w * 0.4} height={5} fill="#6b3a22" opacity={0.2} />
+      <Path d={`M${x - w * 0.24} ${GY - h * 0.52} Q${x} ${GY - h * 0.56} ${x + w * 0.22} ${GY - h * 0.52}`} stroke="#fbe0c0" strokeWidth={1.5} fill="none" opacity={0.28} />
+      <Path d={`M${x - w * 0.18} ${GY - h * 0.32} Q${x} ${GY - h * 0.35} ${x + w * 0.2} ${GY - h * 0.32}`} stroke="#fbe0c0" strokeWidth={1.4} fill="none" opacity={0.24} />
       <Path d={`M${x - 4} ${GY - h * 0.2} L${x - 4} ${GY - h * 0.2 - 9} A4 4 0 0 1 ${x + 4} ${GY - h * 0.2 - 9} L${x + 4} ${GY - h * 0.2}Z`} fill="#5a321f" opacity={0.65} />
     </G>
   );
@@ -465,6 +507,9 @@ const kRock = (x, w, h, k) => {
         <Path key={`rw${i}`} d={`M${x + w * fx - 3} ${GY - h * fy + 8} L${x + w * fx - 3} ${GY - h * fy + 3} A3 3 0 0 1 ${x + w * fx + 3} ${GY - h * fy + 3} L${x + w * fx + 3} ${GY - h * fy + 8}Z`} fill="#5a321f" opacity={0.72} />
       ))}
       <Rect x={x + w * 0.3} y={GY - h * 0.17} width={w * 0.38} height={2} fill="#f2b88e" opacity={0.4} />
+      {[[0.4, 0.55], [0.48, 0.38], [0.52, 0.2], [0.46, 0.72]].map(([fx, fy], i) => (
+        <Circle key={`lw${i}`} cx={x + w * fx} cy={GY - h * fy + 6} r={2} fill="#ffcf7a" opacity={0.85} />
+      ))}
     </G>
   );
 };
@@ -493,14 +538,24 @@ const nSnow = (pts, limit, key) => pts.map(([x, y], i) => {
   if (y > pts[i - 1][1] || y > pts[i + 1][1]) return null;
   return <Polygon key={`${key}${i}`} points={`${x - 15},${y + 17} ${x - 4},${y + 6} ${x},${y} ${x + 5},${y + 7} ${x + 15},${y + 17} ${x + 4},${y + 13} ${x - 3},${y + 15}`} fill="#fbe3dc" opacity={0.4} />;
 });
-// Yıldızlar (gökyüzünün üst kısmında, aşağı doğru sönükleşir)
+// Yıldızlar (renk tonlu, parlaklara ışıltı; aşağı doğru sönükleşir)
 const nStars = () => {
   const r = kRng(9);
-  return range(0, 54).map((i) => {
-    const x = r() * 1800, y = r() * 310, big = r() < 0.16;
-    return <Circle key={`st${i}`} cx={x} cy={y} r={big ? 1.9 : 1.1} fill="#fff" opacity={(0.95 - y / 360) * (0.45 + r() * 0.55)} />;
+  return range(0, 130).map((i) => {
+    const x = r() * 1800, y = r() * 330, big = r() < 0.12, op = (0.95 - y / 380) * (0.4 + r() * 0.6), tn = r();
+    const f = tn < 0.2 ? '#cfd8ff' : tn < 0.35 ? '#ffe8d0' : '#fff';
+    return (<G key={`st${i}`}><Circle cx={x} cy={y} r={big ? 1.9 : 0.8 + r() * 0.6} fill={f} opacity={op} />{big ? (<G opacity={op * 0.55}><Rect x={x - 5} y={y - 0.4} width={10} height={0.8} fill={f} /><Rect x={x - 0.4} y={y - 5} width={0.8} height={10} fill={f} /></G>) : null}</G>);
   });
 };
+// Sırt yüzey gölgeleri: her zirvenin sağ yamacı (ışık soldan gelir), gerçek sırt çizgisini izler
+const nFacets = (pts, limit, key, op) => pts.map(([x, y], i) => {
+  if (i === 0 || i === pts.length - 1 || y > limit) return null;
+  if (y > pts[i - 1][1] || y > pts[i + 1][1]) return null;
+  let j = i; while (j < pts.length - 1 && pts[j + 1][1] >= pts[j][1]) j++;
+  const vy = pts[j][1]; if (vy - y < 25) return null;
+  const poly = [...pts.slice(i, j + 1), [x, vy]].map(([px, py]) => `${px},${py.toFixed(1)}`).join(' ');
+  return <Polygon key={`${key}${i}`} points={poly} fill="#2a1d4a" opacity={op} />;
+});
 
 // Tümülüs: ezilmiş taş yığını, konik, tırtıklı siluet, ışık/gölge yüzü ve taş kırıntıları
 const nMound = (cx, w, h, k) => {
@@ -515,17 +570,19 @@ const nMound = (cx, w, h, k) => {
   }
   const outline = [...L, ...[...R].reverse()].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
   const shade = [[cx, yAt(0.965)], ...[...R].reverse(), [cx, GY + 8]].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-  const chips = range(0, 78).map((i) => {
+  const strata = range(1, 6).map((j) => { const t = j / 7, xl = cx - hw(t), xr = cx + hw(t), y = yAt(t); return (<G key={`s${j}`}><Path d={`M${xl.toFixed(1)} ${y.toFixed(1)} Q${cx} ${(y + 5).toFixed(1)} ${xr.toFixed(1)} ${y.toFixed(1)}`} stroke="#5f4f3f" strokeWidth={1.2} fill="none" opacity={0.16} /><Path d={`M${xl.toFixed(1)} ${(y + 2).toFixed(1)} Q${cx} ${(y + 7).toFixed(1)} ${xr.toFixed(1)} ${(y + 2).toFixed(1)}`} stroke="#fff2d0" strokeWidth={0.9} fill="none" opacity={0.12} /></G>); });
+  const chips = range(0, Math.round(w / 4)).map((i) => {
     const t = 0.04 + r() * 0.9, u = (r() * 2 - 1) * 0.88;
     const x = cx + u * hw(t), y = yAt(t) + r() * 4, s = 2.5 + r() * 4.5 * (1 - t * 0.5), dark = r() < (u > 0 ? 0.6 : 0.35);
     return <Polygon key={`c${i}`} points={`${x.toFixed(1)},${y.toFixed(1)} ${(x + s).toFixed(1)},${(y + s * 0.4).toFixed(1)} ${(x + s * 0.4).toFixed(1)},${(y + s * 0.9).toFixed(1)}`} fill={dark ? '#5f4f3f' : '#e6d6b9'} opacity={dark ? 0.34 : 0.42} />;
   });
   return (
     <G key={k}>
+      <Ellipse cx={cx + w * 0.08} cy={GY + 9} rx={w * 0.56} ry={5} fill="#2a1d2c" opacity={0.2} />
       <Polygon points={outline} fill={NM('mound')} />
       <Polygon points={shade} fill="#2a1d2c" opacity={0.2} />
       <Path d={L.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ')} stroke={N_SUN} strokeWidth={2.2} fill="none" opacity={0.55} />
-      {chips}
+      {strata}{chips}
     </G>
   );
 };
@@ -540,6 +597,9 @@ const nSeat = (x, base, sc, v, k) => {
   ][v % 3];
   return (
     <G key={k}>
+      <Polygon points={`${x - 23 * s},${base} ${x + 23 * s},${base} ${x + 95 * s},${base + 9} ${x + 49 * s},${base + 9}`} fill="#2a1d2c" opacity={0.14} />
+      <Rect x={x - 15 * s} y={base - 88 * s} width={30 * s} height={24 * s} fill="#85715a" />
+      <Rect x={x - 17 * s} y={base - 90 * s} width={34 * s} height={3 * s} fill="#b9a58a" />
       <Rect x={x - 23 * s} y={base - 66 * s} width={46 * s} height={66 * s} fill="#9a8466" />
       <Rect x={x - 25 * s} y={base - 24 * s} width={50 * s} height={24 * s} fill="#ad9778" />
       <Rect x={x - 25 * s} y={base - 24 * s} width={50 * s} height={3 * s} fill="#c9b494" />
@@ -561,6 +621,14 @@ const nSeat = (x, base, sc, v, k) => {
       <Rect x={x - 10 * s} y={base - 82 * s} width={20 * s} height={3.2 * s} fill="#8d7962" />
       <Rect x={x + 3 * s} y={base - 66 * s} width={20 * s} height={66 * s} fill="#000" opacity={0.13} />
       <Rect x={x - 23 * s} y={base - 66 * s} width={2.5 * s} height={66 * s} fill={N_SUN} opacity={0.35} />
+      <Rect x={x - 28 * s} y={base - 3 * s} width={56 * s} height={3 * s} fill="#c9b494" />
+      <Ellipse cx={x - 9.4 * s} cy={base - 73 * s} rx={1.6 * s} ry={3 * s} fill="#b9a58a" />
+      <Ellipse cx={x + 9.4 * s} cy={base - 73 * s} rx={1.6 * s} ry={3 * s} fill="#a8946f" />
+      {[-5, 0, 5].map((dx, j) => (<Circle key={`o${j}`} cx={x + dx * s} cy={base - 80.4 * s} r={0.9 * s} fill="#e6d6b9" />))}
+      <Path d={`M${x - 9 * s} ${base - 60 * s} Q${x} ${base - 50 * s} ${x + 9 * s} ${base - 60 * s}`} stroke="#e6d6b9" strokeWidth={1.6 * s} fill="none" opacity={0.8} />
+      <Circle cx={x} cy={base - 52 * s} r={2.2 * s} fill="#e6d6b9" opacity={0.75} />
+      <Rect x={x - 22 * s} y={base - 30 * s} width={9 * s} height={5 * s} fill="#d3c0a4" />
+      <Rect x={x + 13 * s} y={base - 30 * s} width={9 * s} height={5 * s} fill="#c4b094" />
     </G>
   );
 };
@@ -619,17 +687,28 @@ const nEagle = (x, base, sc, dir, k) => {
   );
 };
 
-// Teras: kesme taş duvar, derzler ve üst kenar
+// Teras: ayrı kesme taş blokları (kademeli derz), merdiven, üst kenar ve taban gölgesi
 const nTerrace = (x0, x1) => {
-  const top = GY - 30;
+  const top = GY - 30, r = kRng(77), bl = [];
+  [0, 1, 2].forEach((row) => {
+    let x = x0 - (row % 2) * 20;
+    while (x < x1) {
+      const w = 34 + r() * 22, a = Math.max(x, x0), b = Math.min(x + w, x1), q = r();
+      if (b > a) bl.push(<Rect key={`b${row}_${bl.length}`} x={a} y={top + 8 + row * 7.6} width={Math.max(1, b - a - 1.2)} height={7} fill={q < 0.4 ? '#c4b094' : q < 0.75 ? '#a8946f' : '#7a6650'} opacity={0.22 + r() * 0.18} />);
+      x += w;
+    }
+  });
+  const cx = (x0 + x1) / 2;
   return (
     <G>
       <Rect x={x0} y={top} width={x1 - x0} height={GY + 8 - top} fill="#8f7b5f" />
       <Rect x={x0} y={top} width={x1 - x0} height={5} fill="#c4b094" />
       <Rect x={x0} y={top + 5} width={x1 - x0} height={3} fill="#000" opacity={0.1} />
-      {[top + 17, top + 29].map((y) => (<Rect key={`h${y}`} x={x0} y={y} width={x1 - x0} height={1.6} fill="#5f4f3f" opacity={0.4} />))}
-      {range(0, Math.floor((x1 - x0) / 40)).map((i) => (<Rect key={`v1${i}`} x={x0 + 20 + i * 40} y={top + 8} width={1.6} height={9} fill="#5f4f3f" opacity={0.4} />))}
-      {range(0, Math.floor((x1 - x0) / 40)).map((i) => (<Rect key={`v2${i}`} x={x0 + i * 40} y={top + 18.6} width={1.6} height={10.4} fill="#5f4f3f" opacity={0.4} />))}
+      {bl}
+      {[top + 15.4, top + 23, top + 30.6].map((y) => (<Rect key={`h${y}`} x={x0} y={y} width={x1 - x0} height={1.2} fill="#5f4f3f" opacity={0.4} />))}
+      <Polygon points={`${cx - 62},${GY + 8} ${cx + 62},${GY + 8} ${cx + 36},${top + 4} ${cx - 36},${top + 4}`} fill="#a8946f" />
+      {[0, 1, 2].map((i) => (<G key={`stp${i}`}><Rect x={cx - 58 + i * 8} y={top + 8 + i * 7.6} width={116 - i * 16} height={1.6} fill="#e6d6b9" opacity={0.55} /><Rect x={cx - 58 + i * 8} y={top + 9.6 + i * 7.6} width={116 - i * 16} height={2.4} fill="#000" opacity={0.16} /></G>))}
+      <Rect x={x0} y={GY + 4} width={x1 - x0} height={4} fill="#000" opacity={0.15} />
     </G>
   );
 };
@@ -646,18 +725,31 @@ const ART = {
     tile: 1800,
     grads: [['far', '#d98a7a', '#f6c3a0'], ['mesa', '#e3a273', '#b26a42'], ['chim', '#f3c8a2', '#c98558'], ['hill', '#d69262', '#b9693f']],
     layers: [
-      { factor: 0.05, draw: () => (<G>{kClouds.map(([x, y, sc], i) => cloud(x, y, sc, i % 2 ? '#ffd2ab' : '#ffe3c4', 0.62, i, 1.4))}</G>) },
+      { factor: 0.05, draw: () => (<G>
+        <Rect x={0} y={420} width={1800} height={260} fill="#ffd9a8" opacity={0.14} />
+        <Rect x={0} y={480} width={1800} height={200} fill="#ffc8a0" opacity={0.16} />
+        {[120, 520, 900, 1280, 1620].map((bx, i) => (<Polygon key={`bm${i}`} points={`${bx},0 ${bx + 70},0 ${bx + 330},680 ${bx + 120},680`} fill="#fff2d0" opacity={0.06} />))}
+        {kClouds.map(([x, y, sc], i) => cloud(x, y, sc, i % 2 ? '#ffd2ab' : '#ffe3c4', 0.62, i, 1.4))}
+      </G>) },
       { factor: 0.1, draw: () => { const r = kRng(11); const far = []; for (let x = 30; x < 1780; x += 18 + r() * 40) { const hh = 16 + r() * 24; const y = kY(560, RIDGE2, x) + 4; far.push(<Path key={`f${x.toFixed(0)}`} d={`M${x - 6} ${y} Q${x - 2} ${y - hh * 0.6} ${x} ${y - hh} Q${x + 2} ${y - hh * 0.6} ${x + 6} ${y}Z`} fill="#d98f7c" opacity={0.8} />); } return (<G>
+        <Path d="M1150 540 L1290 440 L1370 380 L1420 352 L1470 382 L1550 442 L1700 540Z" fill="#c9858a" opacity={0.85} />
+        <Path d="M1370 380 L1420 352 L1470 382 L1448 398 L1428 386 L1408 404 L1392 390Z" fill="#fbe3dc" opacity={0.9} />
+        <Path d="M1420 352 L1470 382 L1550 442 L1700 540 L1500 540Z" fill="#8a4a60" opacity={0.18} />
         <Path d={kPath(500, RIDGE1)} fill={K('far')} />
         <Path d={kPath(560, RIDGE2)} fill="#e7a98b" opacity={0.9} />
         {far}
-        {[582, 598, 614].map((yy, i) => (<Path key={`sl${i}`} d={kPath(yy, [[18, 4 + i, 1 + i], [7, 11, i]], null)} stroke="#c97a6a" strokeWidth={2} fill="none" opacity={0.25} />))}
+        <Path d={kPath(578, [[16, 4, 1], [7, 11, 0]])} fill="#f4c6aa" opacity={0.92} />
+        <Path d={kPath(596, [[16, 4, 1.4], [8, 10, 0.6]])} fill="#e49a82" />
+        <Path d={kPath(614, [[14, 5, 2], [6, 12, 1]])} fill="#c8715e" opacity={0.95} />
+        <Path d={kPath(632, [[10, 6, 0.3], [5, 14, 2]])} fill="#a85a52" opacity={0.9} />
       </G>); } },
       { factor: 0.22, draw: () => (<G>{mist(kMistList, 0.34)}</G>) },
-      { factor: 0.35, draw: () => { const r = kRng(5); const trees = []; for (let x = 40; x < 1780; x += 30 + r() * 70) trees.push(kTree(x, kY(648, [[10, 5, 0.5], [6, 13, 1]], x) + 14, 16 + r() * 16, `t${x.toFixed(0)}`)); return (<G>
+      { factor: 0.35, draw: () => { const r = kRng(5); const trees = []; for (let x = 40; x < 1780; x += 30 + r() * 70) trees.push(kBoulder(x, kY(648, [[10, 5, 0.5], [6, 13, 1]], x) + 16, 8 + r() * 12, 7 + r() * 9, `t${x.toFixed(0)}`)); return (<G>
         <Path d={kPath(648, [[10, 5, 0.5], [6, 13, 1]])} fill="#d49a70" />
         {mesa(90, 110, 80, 'm1')}{mesa(760, 90, 62, 'm2')}{mesa(1010, 150, 118, 'm3')}{mesa(1380, 100, 72, 'm4')}{mesa(1640, 80, 56, 'm5')}
         {kRock(300, 230, 185, 'castle')}
+        {kRock(1180, 190, 140, 'rock2')}
+        {kVillage(560, 'vil')}
         {trees}
       </G>); } },
       { factor: 0.55, draw: () => { const r = kRng(23); const items = []; let x = 50; while (x < 1740) { const q = r(); const h = 55 + r() * 120; const w = Math.max(36, h * (0.4 + r() * 0.12)); const key = `c${items.length}`;
@@ -673,32 +765,39 @@ const ART = {
       <Rect x={0} y={GY} width={1800} height={12} fill="#f0b27a" />
       {range(-1, 36).map((i) => (<Polygon key={i} points={`${i * 50},${GY + 12} ${i * 50 + 22},${GY + 12} ${i * 50 + 6},${H} ${i * 50 - 16},${H}`} fill="#bf7646" />))}
       {range(0, 28).map((i) => (<Ellipse key={`p${i}`} cx={25 + i * 62} cy={GY + 36 + (i % 3) * 16} rx={5} ry={3} fill="#a5633a" opacity={0.7} />))}
+      {range(0, 17).map((i) => (<Path key={`st${i}`} d={`M${i * 100 + 10} ${GY + 26 + (i % 2) * 20} q30 -5 62 0`} stroke="#e0a070" strokeWidth={2} fill="none" opacity={0.35} />))}
+      {range(0, 15).map((i) => { const gx = 40 + i * 113; const gy = GY + 40 + (i % 3) * 14; return (<G key={`sn${i}`}><Ellipse cx={gx} cy={gy} rx={9} ry={4.5} fill="#b06a42" opacity={0.8} /><Ellipse cx={gx - 2} cy={gy - 1.5} rx={5} ry={2} fill="#e3a574" opacity={0.6} /></G>); })}
     </G>),
   },
 
   nemrut: {
     tile: 1800,
-    grads: [['far', '#6a4a8c', '#d49aa8'], ['far2', '#8a5f94', '#eaa3a2'], ['mound', '#d2c1a4', '#8d7962'], ['hill', '#9a8068', '#6f5c49']],
+    grads: [['far', '#6a4a8c', '#d49aa8'], ['far2', '#8a5f94', '#eaa3a2'], ['mound', '#d2c1a4', '#8d7962'], ['hill', '#9a8068', '#6f5c49'], ['far0', '#4a3672', '#b184a4']],
     layers: [
       { factor: 0.05, draw: () => (<G>
         {nStars()}
         {[[120, 130, 130, 5], [520, 95, 160, 5], [900, 190, 120, 4], [1280, 120, 150, 5], [1620, 210, 110, 4]].map(([x, y, rx, ry], i) => (<Ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#ffc9a0" opacity={0.5} />))}
         {[[300, 260, 150, 6], [760, 300, 130, 5], [1140, 270, 170, 6], [1520, 320, 120, 5]].map(([x, y, rx, ry], i) => (<Ellipse key={`q${i}`} cx={x} cy={y} rx={rx} ry={ry} fill="#f7a6a8" opacity={0.4} />))}
+        {[[200, 360, 260, 7], [680, 400, 300, 8], [1100, 350, 280, 7], [1500, 420, 240, 7], [400, 460, 220, 5], [1300, 480, 260, 6]].map(([x, y, rx, ry], i) => (<Path key={`sk${i}`} d={`M${x - rx} ${y} Q${x} ${y - ry} ${x + rx} ${y} Q${x} ${y + ry * 0.35} ${x - rx} ${y}Z`} fill={i % 2 ? '#ffc9a0' : '#f7a6a8'} opacity={0.32} />))}
+        {[[900, 590, 760, 36, 0.1], [900, 600, 520, 22, 0.12], [900, 606, 300, 12, 0.16]].map(([x, y, rx, ry, op], i) => (<Ellipse key={`hz${i}`} cx={x} cy={y} rx={rx} ry={ry} fill="#ffd9a0" opacity={op} />))}
       </G>) },
-      { factor: 0.1, draw: () => { const p1 = nPts(470, [[78, 3, 0.5], [32, 7, 1.3], [14, 13, 0.2]], 12, 3); const p2 = nPts(556, [[50, 4, 1], [22, 9, 0.4], [9, 17, 2]], 8, 5); return (<G>
-        <Path d={nFill(p1)} fill={NM('far')} />
+      { factor: 0.1, draw: () => { const p1 = nPts(470, [[78, 3, 0.5], [32, 7, 1.3], [14, 13, 0.2]], 12, 3); const p0 = nPts(418, [[46, 2, 0.2], [24, 5, 0.9], [12, 11, 1.6]], 9, 13); const p2 = nPts(556, [[50, 4, 1], [22, 9, 0.4], [9, 17, 2]], 8, 5); return (<G>
+        <Path d={nFill(p0)} fill={NM('far0')} opacity={0.7} />{nSnow(p0, 450, 'sz')}<Path d={nFill(p1)} fill={NM('far')} />{nFacets(p1, 520, 'fa', 0.2)}
         {nSnow(p1, 505, 'sn')}
         <Path d={nLine(p1)} stroke={N_SUN} strokeWidth={1.6} fill="none" opacity={0.35} />
-        <Path d={nFill(p2)} fill={NM('far2')} opacity={0.96} />
+        <Path d={nFill(p2)} fill={NM('far2')} opacity={0.96} />{nFacets(p2, 600, 'fb', 0.14)}
         <Path d={nLine(p2)} stroke={N_SUN} strokeWidth={1.2} fill="none" opacity={0.18} />
       </G>); } },
       { factor: 0.22, draw: () => (<G>
         <Rect x={0} y={575} width={1800} height={120} fill="#f7b6b0" opacity={0.12} />
-        {mist([[200, 600, 150, 14], [700, 620, 180, 16], [1150, 598, 140, 13], [1560, 616, 160, 15], [430, 640, 130, 10], [1350, 646, 150, 10]], 0.3)}
+        {mist([[200, 600, 150, 14], [700, 620, 180, 16], [1150, 598, 140, 13], [1560, 616, 160, 15], [430, 640, 130, 10], [1350, 646, 150, 10], [60, 590, 120, 9], [980, 640, 200, 9], [1700, 600, 130, 10]], 0.3)}
       </G>) },
       { factor: 0.35, draw: () => { const hill = nPts(642, [[22, 2, 0.5], [10, 5, 1.1], [5, 11, 0.3]], 6, 7); return (<G>
         <Path d={nFill(hill)} fill={NM('hill')} />
         <Path d={nLine(hill)} stroke={N_SUN} strokeWidth={1.2} fill="none" opacity={0.18} />
+        {hill.filter((_, i) => i > 0 && i % 6 === 3).map(([x, y], i) => (<Polygon key={`jt${i}`} points={`${x - 4},${y + 3} ${x},${y - 16 - (i % 3) * 5} ${x + 4},${y + 3}`} fill="#5b4a3a" opacity={0.75} />))}
+        <Ellipse cx={900} cy={GY - 150} rx={430} ry={110} fill={N_SUN} opacity={0.07} />
+        {nMound(230, 210, 70, 'm2')}{nMound(1570, 280, 95, 'm3')}
         {nMound(900, 780, 250, 'main')}
         {nTerrace(560, 1240)}
         {nEagle(592, GY - 30, 1.0, 1, 'eL')}{nLion(640, GY - 30, 1.05, 1, 'lL')}
@@ -711,7 +810,9 @@ const ART = {
         else if (q < 0.66) o.push(<G key={key}>{[-8, -3, 2, 8].map((dx, j) => (<Polygon key={j} points={`${x + dx - 2.5},${y} ${x + dx + (j % 2 ? 3 : -3)},${y - 14 - r() * 9} ${x + dx + 2.5},${y}`} fill={j % 2 ? '#a8a050' : '#c0b060'} />))}</G>);
         else if (q < 0.82) o.push(<G key={key}>{[-14, -6, 0, 7, 13].map((ang, j) => (<Line key={j} x1={x} y1={y} x2={x + ang} y2={y - 16 - (j % 3) * 4} stroke="#54463a" strokeWidth={1.6} />))}{[-14, 0, 13].map((ang, j) => (<Circle key={`l${j}`} cx={x + ang} cy={y - 17 - (j % 2) * 4} r={2.4} fill="#a8a050" />))}</G>);
         else o.push(<G key={key}><Rect x={x - 11} y={y - 10} width={22} height={11} fill="#a8946f" /><Rect x={x - 8} y={y - 19} width={16} height={9} fill="#b9a58a" /><Rect x={x - 11} y={y - 10} width={22} height={2} fill={N_SUN} opacity={0.3} /></G>); }
-        return (<G><Path d={kPath(704, [[8, 3, 0.4], [4, 11, 1]])} fill="#7a6650" />{o}</G>); } },
+        const sh = range(0, 15).map((i) => { const x = 25 + i * 112 + r() * 50, w = 13 + r() * 16, y = GY + 8; return (<G key={`sh${i}`}><Ellipse cx={x} cy={y - w * 0.3} rx={w} ry={w * 0.5} fill="#6f6a3a" /><Ellipse cx={x - w * 0.3} cy={y - w * 0.45} rx={w * 0.6} ry={w * 0.38} fill="#8a8446" /><Ellipse cx={x - w * 0.45} cy={y - w * 0.58} rx={w * 0.25} ry={w * 0.13} fill="#c0b060" opacity={0.6} /></G>); });
+        const fl = range(0, 46).map((i) => { const x = r() * 1800, y = GY + 3 + r() * 5, c = r(); return <Circle key={`fl${i}`} cx={x} cy={y} r={1.3 + r()} fill={c < 0.4 ? '#f0e6a0' : c < 0.7 ? '#e7a0b0' : '#fff'} opacity={0.85} />; });
+        return (<G><Path d={kPath(704, [[8, 3, 0.4], [4, 11, 1]])} fill="#7a6650" />{sh}{o}{fl}</G>); } },
     ],
     ground: () => (<G>
       <Rect x={0} y={GY} width={1800} height={H - GY} fill="#a88f70" />
@@ -720,6 +821,9 @@ const ART = {
       {range(0, 11).map((i) => (<Rect key={`sl${i}`} x={20 + i * 160 + (i % 2) * 24} y={GY + 22 + (i % 3) * 16} width={70 + (i % 3) * 14} height={18} rx={4} fill="#b9a384" opacity={0.45} />))}
       {range(0, 40).map((i) => (<Ellipse key={`p${i}`} cx={20 + i * 45 + (i % 3) * 7} cy={GY + 30 + (i % 4) * 14} rx={5 + (i % 3) * 2} ry={3} fill="#8d7962" opacity={0.7} />))}
       {range(0, 22).map((i) => (<Rect key={`l${i}`} x={30 + i * 82} y={GY + 24 + (i % 3) * 18} width={30} height={2.4} rx={1} fill="#c9b494" opacity={0.5} />))}
+      {range(0, 70).map((i) => (<Ellipse key={`pb${i}`} cx={(i * 97) % 1800} cy={GY + 20 + ((i * 53) % 100)} rx={2 + (i % 4)} ry={1.4 + (i % 3) * 0.4} fill={i % 3 ? '#c9b494' : '#6f5c49'} opacity={0.45} />))}
+      {range(0, 14).map((i) => (<Path key={`cr${i}`} d={`M${60 + i * 124} ${GY + 34 + (i % 4) * 22} l9 -3 l8 4 l10 -2`} stroke="#5f4f3f" strokeWidth={1.2} fill="none" opacity={0.3} />))}
+      <Rect x={0} y={H - 56} width={1800} height={56} fill="#2a1d2c" opacity={0.12} />
     </G>),
   },
 
