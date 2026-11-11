@@ -471,36 +471,175 @@ const kRock = (x, w, h, k) => {
 
 /* ================= NEMRUT DAĞI ================= */
 const NM = (n) => `url(#g-nemrut-${n})`;
-const nStatue = (x, base, sc, k) => (
-  <G key={k}>
-    <Rect x={x - 19 * sc} y={base - 30 * sc} width={38 * sc} height={32 * sc} fill="#9c8767" />
-    <Rect x={x - 14 * sc} y={base - 56 * sc} width={28 * sc} height={28 * sc} fill="#b9a58a" />
-    <Rect x={x - 18 * sc} y={base - 50 * sc} width={6 * sc} height={18 * sc} fill="#a8946f" />
-    <Rect x={x + 12 * sc} y={base - 50 * sc} width={6 * sc} height={18 * sc} fill="#a8946f" />
-    <Rect x={x - 11 * sc} y={base - 74 * sc} width={22 * sc} height={20 * sc} fill="#c4b094" />
-    <Ellipse cx={x} cy={base - 84 * sc} rx={8 * sc} ry={10 * sc} fill="#cdb99d" />
-    <Path d={`M${x - 8 * sc} ${base - 86 * sc} L${x - 6 * sc} ${base - 106 * sc} Q${x} ${base - 112 * sc} ${x + 6 * sc} ${base - 106 * sc} L${x + 8 * sc} ${base - 86 * sc}Z`} fill="#b39d7e" />
-    <Rect x={x - 4 * sc} y={base - 80 * sc} width={8 * sc} height={9 * sc} fill="#a8946f" opacity={0.8} />
-    <Rect x={x + 3 * sc} y={base - 74 * sc} width={8 * sc} height={44 * sc} fill="#000" opacity={0.1} />
-  </G>
-);
-const nHead = (x, base, sc, k) => (
-  <G key={k}>
-    <Ellipse cx={x} cy={base - 8 * sc} rx={10 * sc} ry={9 * sc} fill="#c9b69a" />
-    <Path d={`M${x - 8 * sc} ${base - 12 * sc} L${x - 4 * sc} ${base - 26 * sc} Q${x + 2 * sc} ${base - 30 * sc} ${x + 7 * sc} ${base - 22 * sc} L${x + 8 * sc} ${base - 12 * sc}Z`} fill="#b39d7e" />
-    <Rect x={x - 5 * sc} y={base - 3 * sc} width={10 * sc} height={4 * sc} fill="#a8946f" />
-  </G>
-);
+const N_SUN = '#ffd9a0'; // gün doğumu kenar ışığı
+
+// Periyodik (1800 birim) sivri dağ silüeti: kenarlarda kesintisiz birleşir (k tam sayı olmalı)
+const nPts = (base, comps, jit, seed) => {
+  const r = kRng(seed);
+  const pts = [];
+  for (let x = 0; x <= 1800; x += 15) {
+    let y = base;
+    comps.forEach(([a, k, ph]) => { y += a * Math.abs(Math.sin((Math.PI * k * x) / 1800 + ph)); });
+    if (x > 0 && x < 1800) y += (r() - 0.5) * jit;
+    pts.push([x, y]);
+  }
+  return pts;
+};
+const nFill = (pts) => `M0 ${H} ${pts.map(([x, y]) => `L${x} ${y.toFixed(1)}`).join(' ')} L1800 ${H} Z`;
+const nLine = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x} ${y.toFixed(1)}`).join(' ');
+// Zirvelerde kar lekeleri
+const nSnow = (pts, limit, key) => pts.map(([x, y], i) => {
+  if (i === 0 || i === pts.length - 1 || y > limit) return null;
+  if (y > pts[i - 1][1] || y > pts[i + 1][1]) return null;
+  return <Polygon key={`${key}${i}`} points={`${x - 15},${y + 17} ${x - 4},${y + 6} ${x},${y} ${x + 5},${y + 7} ${x + 15},${y + 17} ${x + 4},${y + 13} ${x - 3},${y + 15}`} fill="#fbe3dc" opacity={0.4} />;
+});
+// Yıldızlar (gökyüzünün üst kısmında, aşağı doğru sönükleşir)
+const nStars = () => {
+  const r = kRng(9);
+  return range(0, 54).map((i) => {
+    const x = r() * 1800, y = r() * 310, big = r() < 0.16;
+    return <Circle key={`st${i}`} cx={x} cy={y} r={big ? 1.9 : 1.1} fill="#fff" opacity={(0.95 - y / 360) * (0.45 + r() * 0.55)} />;
+  });
+};
+
+// Tümülüs: ezilmiş taş yığını, konik, tırtıklı siluet, ışık/gölge yüzü ve taş kırıntıları
 const nMound = (cx, w, h, k) => {
-  const r = kRng(Math.round(cx));
+  const r = kRng(Math.round(cx) + 3);
+  const hw = (t) => (w / 2) * Math.pow(1 - t, 1.12) * (1 - 0.12 * Math.pow(t, 3));
+  const yAt = (t) => GY + 8 - (h + 8) * t;
+  const L = [], R = [];
+  for (let i = 0; i <= 14; i++) {
+    const t = (i / 14) * 0.965;
+    L.push([cx - hw(t) + (i ? (r() - 0.5) * 8 : 0), yAt(t)]);
+    R.push([cx + hw(t) + (i ? (r() - 0.5) * 8 : 0), yAt(t)]);
+  }
+  const outline = [...L, ...[...R].reverse()].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const shade = [[cx, yAt(0.965)], ...[...R].reverse(), [cx, GY + 8]].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const chips = range(0, 78).map((i) => {
+    const t = 0.04 + r() * 0.9, u = (r() * 2 - 1) * 0.88;
+    const x = cx + u * hw(t), y = yAt(t) + r() * 4, s = 2.5 + r() * 4.5 * (1 - t * 0.5), dark = r() < (u > 0 ? 0.6 : 0.35);
+    return <Polygon key={`c${i}`} points={`${x.toFixed(1)},${y.toFixed(1)} ${(x + s).toFixed(1)},${(y + s * 0.4).toFixed(1)} ${(x + s * 0.4).toFixed(1)},${(y + s * 0.9).toFixed(1)}`} fill={dark ? '#5f4f3f' : '#e6d6b9'} opacity={dark ? 0.34 : 0.42} />;
+  });
   return (
     <G key={k}>
-      <Path d={`M${cx - w / 2} ${GY + 8} Q${cx - w * 0.3} ${GY - h * 0.66} ${cx} ${GY - h} Q${cx + w * 0.3} ${GY - h * 0.66} ${cx + w / 2} ${GY + 8}Z`} fill={NM('mound')} />
-      <Path d={`M${cx} ${GY - h} Q${cx + w * 0.3} ${GY - h * 0.66} ${cx + w / 2} ${GY + 8} L${cx + w * 0.08} ${GY + 8}Z`} fill="#000" opacity={0.13} />
-      {range(0, 26).map((i) => { const t = r(); const px = cx + (r() - 0.5) * w * 0.7 * (0.25 + t); const py = GY - h * (0.08 + 0.85 * (1 - t)); return (<Ellipse key={`g${i}`} cx={px} cy={py} rx={3 + r() * 3} ry={1.6} fill="#6d5c4a" opacity={0.28} />); })}
+      <Polygon points={outline} fill={NM('mound')} />
+      <Polygon points={shade} fill="#2a1d2c" opacity={0.2} />
+      <Path d={L.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ')} stroke={N_SUN} strokeWidth={2.2} fill="none" opacity={0.55} />
+      {chips}
     </G>
   );
 };
+
+// Oturan dev heykel: taht, gövde, sakallı yüz, farklı başlıklar (v: 0 konik tiara, 1 yuvarlak, 2 çentikli)
+const nSeat = (x, base, sc, v, k) => {
+  const s = sc;
+  const cap = [
+    `M${x - 9 * s} ${base - 79 * s} L${x - 6 * s} ${base - 104 * s} Q${x} ${base - 113 * s} ${x + 6 * s} ${base - 104 * s} L${x + 9 * s} ${base - 79 * s}Z`,
+    `M${x - 10 * s} ${base - 79 * s} Q${x - 11 * s} ${base - 96 * s} ${x} ${base - 99 * s} Q${x + 11 * s} ${base - 96 * s} ${x + 10 * s} ${base - 79 * s}Z`,
+    `M${x - 9 * s} ${base - 79 * s} L${x - 9 * s} ${base - 96 * s} L${x - 4 * s} ${base - 92 * s} L${x} ${base - 108 * s} L${x + 4 * s} ${base - 92 * s} L${x + 9 * s} ${base - 96 * s} L${x + 9 * s} ${base - 79 * s}Z`,
+  ][v % 3];
+  return (
+    <G key={k}>
+      <Rect x={x - 23 * s} y={base - 66 * s} width={46 * s} height={66 * s} fill="#9a8466" />
+      <Rect x={x - 25 * s} y={base - 24 * s} width={50 * s} height={24 * s} fill="#ad9778" />
+      <Rect x={x - 25 * s} y={base - 24 * s} width={50 * s} height={3 * s} fill="#c9b494" />
+      <Rect x={x - 15 * s} y={base - 62 * s} width={30 * s} height={40 * s} fill="#c4b094" />
+      <Rect x={x - 11 * s} y={base - 55 * s} width={22 * s} height={3.5 * s} fill="#ad9778" />
+      <Rect x={x - 11 * s} y={base - 47 * s} width={22 * s} height={3.5 * s} fill="#ad9778" />
+      <Rect x={x - 17 * s} y={base - 31 * s} width={34 * s} height={9 * s} fill="#cdb99d" />
+      <Rect x={x - 16 * s} y={base - 23 * s} width={12 * s} height={23 * s} fill="#bba886" />
+      <Rect x={x + 4 * s} y={base - 23 * s} width={12 * s} height={23 * s} fill="#bba886" />
+      <Rect x={x - 21 * s} y={base - 54 * s} width={7 * s} height={26 * s} fill="#bfab8e" />
+      <Rect x={x + 14 * s} y={base - 54 * s} width={7 * s} height={26 * s} fill="#bfab8e" />
+      <Rect x={x - 4 * s} y={base - 68 * s} width={8 * s} height={8 * s} fill="#b9a58a" />
+      <Ellipse cx={x} cy={base - 73 * s} rx={9 * s} ry={11 * s} fill="#d3c0a4" />
+      <Path d={`M${x - 7 * s} ${base - 71 * s} Q${x} ${base - 50 * s} ${x + 7 * s} ${base - 71 * s}Z`} fill="#b39d7e" opacity={0.9} />
+      <Rect x={x - 1 * s} y={base - 77 * s} width={2 * s} height={7 * s} fill="#a8946f" />
+      <Rect x={x - 6 * s} y={base - 77 * s} width={4 * s} height={1.8 * s} fill="#7a6650" />
+      <Rect x={x + 2 * s} y={base - 77 * s} width={4 * s} height={1.8 * s} fill="#7a6650" />
+      <Path d={cap} fill="#b9a58a" />
+      <Rect x={x - 10 * s} y={base - 82 * s} width={20 * s} height={3.2 * s} fill="#8d7962" />
+      <Rect x={x + 3 * s} y={base - 66 * s} width={20 * s} height={66 * s} fill="#000" opacity={0.13} />
+      <Rect x={x - 23 * s} y={base - 66 * s} width={2.5 * s} height={66 * s} fill={N_SUN} opacity={0.35} />
+    </G>
+  );
+};
+
+// Kayıp başlar: yere düşmüş, hafif yatık, sakallı ve tiaralı
+const nHead = (x, base, sc, rot, k) => {
+  const s = sc;
+  return (
+    <G key={k} transform={`rotate(${rot} ${x} ${base})`}>
+      <Ellipse cx={x} cy={base - 11 * s} rx={11 * s} ry={12 * s} fill="#c9b69a" />
+      <Path d={`M${x - 8 * s} ${base - 9 * s} Q${x} ${base + 6 * s} ${x + 8 * s} ${base - 9 * s}Z`} fill="#b39d7e" />
+      <Path d={`M${x - 9 * s} ${base - 19 * s} L${x - 6 * s} ${base - 38 * s} Q${x} ${base - 44 * s} ${x + 6 * s} ${base - 38 * s} L${x + 9 * s} ${base - 19 * s}Z`} fill="#b39d7e" />
+      <Rect x={x - 9.5 * s} y={base - 21 * s} width={19 * s} height={3 * s} fill="#8d7962" />
+      <Rect x={x - 1 * s} y={base - 15 * s} width={2 * s} height={6 * s} fill="#a8946f" />
+      <Rect x={x - 6 * s} y={base - 16 * s} width={4 * s} height={1.7 * s} fill="#7a6650" />
+      <Rect x={x + 2 * s} y={base - 16 * s} width={4 * s} height={1.7 * s} fill="#7a6650" />
+      <Ellipse cx={x + 5 * s} cy={base - 10 * s} rx={5 * s} ry={9 * s} fill="#000" opacity={0.1} />
+    </G>
+  );
+};
+
+// Çömelmiş aslan (dir: 1 sağa, -1 sola bakar)
+const nLion = (x, base, sc, dir, k) => {
+  const s = sc;
+  const rc = (dx, dy, w, h, fill, key) => <Rect key={key} x={dir > 0 ? x + dx * s : x - (dx + w) * s} y={base + dy * s} width={w * s} height={h * s} fill={fill} />;
+  const X = (dx) => x + dir * dx * s;
+  return (
+    <G key={k}>
+      {rc(-22, -3, 44, 4, '#8d7962', 'pl')}
+      <Ellipse cx={X(0)} cy={base - 10 * s} rx={17 * s} ry={8 * s} fill="#a8946f" />
+      <Ellipse cx={X(-9)} cy={base - 11 * s} rx={9 * s} ry={9 * s} fill="#9c8767" />
+      <Ellipse cx={X(11)} cy={base - 14 * s} rx={7 * s} ry={8 * s} fill="#b09a7a" />
+      {rc(9, -12, 5, 11, '#b9a58a', 'l1')}
+      {rc(15, -12, 4, 11, '#b9a58a', 'l2')}
+      <Ellipse cx={X(16)} cy={base - 21 * s} rx={9 * s} ry={9 * s} fill="#7f6b55" />
+      <Ellipse cx={X(18)} cy={base - 20 * s} rx={6 * s} ry={6.5 * s} fill="#c4b094" />
+      {rc(21, -19, 3, 2, '#6d5c4a', 'ns')}
+      <Path d={`M${X(-17)} ${base - 9 * s} Q${X(-27)} ${base - 14 * s} ${X(-22)} ${base - 25 * s}`} stroke="#8d7962" strokeWidth={2.4 * s} fill="none" />
+    </G>
+  );
+};
+
+// Kartal heykeli: kaide üstünde yarı açık kanatlı (dir: gagasının yönü)
+const nEagle = (x, base, sc, dir, k) => {
+  const s = sc;
+  return (
+    <G key={k}>
+      <Rect x={x - 8 * s} y={base - 26 * s} width={16 * s} height={26 * s} fill="#9c8767" />
+      <Rect x={x - 10 * s} y={base - 29 * s} width={20 * s} height={4 * s} fill="#b9a58a" />
+      <Path d={`M${x - 4 * s} ${base - 46 * s} L${x - 17 * s} ${base - 54 * s} L${x - 14 * s} ${base - 34 * s} L${x - 4 * s} ${base - 31 * s}Z`} fill="#a8946f" />
+      <Path d={`M${x + 4 * s} ${base - 46 * s} L${x + 17 * s} ${base - 54 * s} L${x + 14 * s} ${base - 34 * s} L${x + 4 * s} ${base - 31 * s}Z`} fill="#9c8767" />
+      <Ellipse cx={x} cy={base - 40 * s} rx={6 * s} ry={11 * s} fill="#b9a58a" />
+      <Circle cx={x} cy={base - 55 * s} r={4.2 * s} fill="#cdb99d" />
+      <Polygon points={`${x + dir * 3 * s},${base - 56 * s} ${x + dir * 9 * s},${base - 53.5 * s} ${x + dir * 3 * s},${base - 52 * s}`} fill="#8d7962" />
+    </G>
+  );
+};
+
+// Teras: kesme taş duvar, derzler ve üst kenar
+const nTerrace = (x0, x1) => {
+  const top = GY - 30;
+  return (
+    <G>
+      <Rect x={x0} y={top} width={x1 - x0} height={GY + 8 - top} fill="#8f7b5f" />
+      <Rect x={x0} y={top} width={x1 - x0} height={5} fill="#c4b094" />
+      <Rect x={x0} y={top + 5} width={x1 - x0} height={3} fill="#000" opacity={0.1} />
+      {[top + 17, top + 29].map((y) => (<Rect key={`h${y}`} x={x0} y={y} width={x1 - x0} height={1.6} fill="#5f4f3f" opacity={0.4} />))}
+      {range(0, Math.floor((x1 - x0) / 40)).map((i) => (<Rect key={`v1${i}`} x={x0 + 20 + i * 40} y={top + 8} width={1.6} height={9} fill="#5f4f3f" opacity={0.4} />))}
+      {range(0, Math.floor((x1 - x0) / 40)).map((i) => (<Rect key={`v2${i}`} x={x0 + i * 40} y={top + 18.6} width={1.6} height={10.4} fill="#5f4f3f" opacity={0.4} />))}
+    </G>
+  );
+};
+const nRock = (x, y, w, h, k) => (
+  <G key={k}>
+    <Polygon points={`${x - w},${y} ${x - w * 0.8},${y - h * 0.6} ${x - w * 0.3},${y - h} ${x + w * 0.35},${y - h * 0.92} ${x + w * 0.85},${y - h * 0.45} ${x + w},${y}`} fill="#6b5a48" />
+    <Polygon points={`${x - w * 0.8},${y - h * 0.6} ${x - w * 0.3},${y - h} ${x + w * 0.35},${y - h * 0.92} ${x + w * 0.1},${y - h * 0.5}`} fill="#8d7962" />
+    <Path d={`M${x - w * 0.8} ${y - h * 0.6} L${x - w * 0.3} ${y - h} L${x + w * 0.35} ${y - h * 0.92}`} stroke={N_SUN} strokeWidth={1.4} fill="none" opacity={0.4} />
+  </G>
+);
 
 const ART = {
   kapadokya: {
@@ -539,35 +678,46 @@ const ART = {
 
   nemrut: {
     tile: 1800,
-    grads: [['far', '#6d4f8f', '#d09aa6'], ['mound', '#bba88f', '#8d7962']],
+    grads: [['far', '#6a4a8c', '#d49aa8'], ['far2', '#8a5f94', '#eaa3a2'], ['mound', '#d2c1a4', '#8d7962'], ['hill', '#9a8068', '#6f5c49']],
     layers: [
       { factor: 0.05, draw: () => (<G>
+        {nStars()}
         {[[120, 130, 130, 5], [520, 95, 160, 5], [900, 190, 120, 4], [1280, 120, 150, 5], [1620, 210, 110, 4]].map(([x, y, rx, ry], i) => (<Ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#ffc9a0" opacity={0.5} />))}
         {[[300, 260, 150, 6], [760, 300, 130, 5], [1140, 270, 170, 6], [1520, 320, 120, 5]].map(([x, y, rx, ry], i) => (<Ellipse key={`q${i}`} cx={x} cy={y} rx={rx} ry={ry} fill="#f7a6a8" opacity={0.4} />))}
       </G>) },
-      { factor: 0.1, draw: () => (<G>
-        <Path d={kPath(520, [[44, 3, 0.8], [20, 8, 0.2]])} fill={NM('far')} />
-        <Path d={kPath(580, [[28, 4, 2], [12, 10, 1]])} fill="#9a6a96" opacity={0.95} />
+      { factor: 0.1, draw: () => { const p1 = nPts(470, [[78, 3, 0.5], [32, 7, 1.3], [14, 13, 0.2]], 12, 3); const p2 = nPts(556, [[50, 4, 1], [22, 9, 0.4], [9, 17, 2]], 8, 5); return (<G>
+        <Path d={nFill(p1)} fill={NM('far')} />
+        {nSnow(p1, 505, 'sn')}
+        <Path d={nLine(p1)} stroke={N_SUN} strokeWidth={1.6} fill="none" opacity={0.35} />
+        <Path d={nFill(p2)} fill={NM('far2')} opacity={0.96} />
+        <Path d={nLine(p2)} stroke={N_SUN} strokeWidth={1.2} fill="none" opacity={0.18} />
+      </G>); } },
+      { factor: 0.22, draw: () => (<G>
+        <Rect x={0} y={575} width={1800} height={120} fill="#f7b6b0" opacity={0.12} />
+        {mist([[200, 600, 150, 14], [700, 620, 180, 16], [1150, 598, 140, 13], [1560, 616, 160, 15], [430, 640, 130, 10], [1350, 646, 150, 10]], 0.3)}
       </G>) },
-      { factor: 0.22, draw: () => (<G>{mist([[200, 600, 150, 14], [700, 620, 180, 16], [1150, 598, 140, 13], [1560, 616, 160, 15]], 0.3)}</G>) },
-      { factor: 0.35, draw: () => (<G>
-        <Path d={kPath(645, [[14, 3, 1], [8, 9, 0.2]])} fill="#8a7660" />
-        {nMound(300, 260, 100, 'm1')}{nMound(1480, 320, 120, 'm2')}
-        {nMound(900, 620, 230, 'main')}
-        <Rect x={720} y={GY - 26} width={360} height={34} fill="#a08a6c" />
-        <Rect x={720} y={GY - 26} width={360} height={4} fill="#c4b094" />
-        {[0, 1, 2, 3, 4].map((i) => nStatue(780 + i * 85, GY - 26, 1.0, `st${i}`))}
-        {nHead(742, GY - 4, 0.8, 'h1')}{nHead(1062, GY - 4, 0.8, 'h2')}{nHead(900, GY - 2, 0.7, 'h3')}
-      </G>) },
-      { factor: 0.55, draw: () => { const r = kRng(41); const o = []; for (let x = 30; x < 1770; x += 40 + r() * 110) { const q = r(); const y = GY + 6;
-        if (q < 0.4) o.push(<G key={`b${x.toFixed(0)}`}><Ellipse cx={x} cy={y - 8} rx={16 + r() * 22} ry={10 + r() * 12} fill="#6b5a48" /><Ellipse cx={x - 4} cy={y - 12} rx={8} ry={4} fill="#8d7962" opacity={0.7} /></G>);
-        else if (q < 0.75) o.push(<G key={`s${x.toFixed(0)}`}>{[-8, 0, 8].map((dx, j) => (<Polygon key={j} points={`${x + dx - 3},${y} ${x + dx},${y - 14 - r() * 8} ${x + dx + 3},${y}`} fill="#a8a050" />))}</G>);
-        else o.push(<G key={`c${x.toFixed(0)}`}><Rect x={x - 9} y={y - 9} width={18} height={10} fill="#a8946f" /><Rect x={x - 7} y={y - 17} width={14} height={8} fill="#b9a58a" /></G>); }
+      { factor: 0.35, draw: () => { const hill = nPts(642, [[22, 2, 0.5], [10, 5, 1.1], [5, 11, 0.3]], 6, 7); return (<G>
+        <Path d={nFill(hill)} fill={NM('hill')} />
+        <Path d={nLine(hill)} stroke={N_SUN} strokeWidth={1.2} fill="none" opacity={0.18} />
+        {nMound(900, 780, 250, 'main')}
+        {nTerrace(560, 1240)}
+        {nEagle(592, GY - 30, 1.0, 1, 'eL')}{nLion(640, GY - 30, 1.05, 1, 'lL')}
+        {nLion(1160, GY - 30, 1.05, -1, 'lR')}{nEagle(1208, GY - 30, 1.0, -1, 'eR')}
+        {[0, 1, 2, 3, 4].map((i) => nSeat(720 + i * 90, GY - 30, 1.02, i, `st${i}`))}
+        {nHead(742, GY - 2, 0.85, -12, 'h1')}{nHead(850, GY - 1, 0.75, 10, 'h2')}{nHead(1010, GY - 2, 0.8, -8, 'h3')}{nHead(1120, GY - 1, 0.7, 14, 'h4')}
+      </G>); } },
+      { factor: 0.55, draw: () => { const r = kRng(41); const o = []; for (let x = 30; x < 1770; x += 38 + r() * 100) { const q = r(); const y = GY + 6; const key = `f${x.toFixed(0)}`;
+        if (q < 0.34) { const w = 12 + r() * 20; o.push(nRock(x, y, w, w * (0.7 + r() * 0.3), key)); }
+        else if (q < 0.66) o.push(<G key={key}>{[-8, -3, 2, 8].map((dx, j) => (<Polygon key={j} points={`${x + dx - 2.5},${y} ${x + dx + (j % 2 ? 3 : -3)},${y - 14 - r() * 9} ${x + dx + 2.5},${y}`} fill={j % 2 ? '#a8a050' : '#c0b060'} />))}</G>);
+        else if (q < 0.82) o.push(<G key={key}>{[-14, -6, 0, 7, 13].map((ang, j) => (<Line key={j} x1={x} y1={y} x2={x + ang} y2={y - 16 - (j % 3) * 4} stroke="#54463a" strokeWidth={1.6} />))}{[-14, 0, 13].map((ang, j) => (<Circle key={`l${j}`} cx={x + ang} cy={y - 17 - (j % 2) * 4} r={2.4} fill="#a8a050" />))}</G>);
+        else o.push(<G key={key}><Rect x={x - 11} y={y - 10} width={22} height={11} fill="#a8946f" /><Rect x={x - 8} y={y - 19} width={16} height={9} fill="#b9a58a" /><Rect x={x - 11} y={y - 10} width={22} height={2} fill={N_SUN} opacity={0.3} /></G>); }
         return (<G><Path d={kPath(704, [[8, 3, 0.4], [4, 11, 1]])} fill="#7a6650" />{o}</G>); } },
     ],
     ground: () => (<G>
       <Rect x={0} y={GY} width={1800} height={H - GY} fill="#a88f70" />
       <Rect x={0} y={GY} width={1800} height={12} fill="#c9b494" />
+      <Rect x={0} y={GY + 12} width={1800} height={3} fill="#000" opacity={0.08} />
+      {range(0, 11).map((i) => (<Rect key={`sl${i}`} x={20 + i * 160 + (i % 2) * 24} y={GY + 22 + (i % 3) * 16} width={70 + (i % 3) * 14} height={18} rx={4} fill="#b9a384" opacity={0.45} />))}
       {range(0, 40).map((i) => (<Ellipse key={`p${i}`} cx={20 + i * 45 + (i % 3) * 7} cy={GY + 30 + (i % 4) * 14} rx={5 + (i % 3) * 2} ry={3} fill="#8d7962" opacity={0.7} />))}
       {range(0, 22).map((i) => (<Rect key={`l${i}`} x={30 + i * 82} y={GY + 24 + (i % 3) * 18} width={30} height={2.4} rx={1} fill="#c9b494" opacity={0.5} />))}
     </G>),
