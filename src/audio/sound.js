@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import { Asset } from 'expo-asset';
 
 // Ses dosyaları: assets/sounds/music.wav (döngü müzik) ve flap.wav (kanat çırpma)
 const MUSIC_FILE = require('../../assets/sounds/music.wav');
@@ -27,6 +28,32 @@ let flapIdx = 0;
 let started = false;
 let appActive = true;
 
+// WEB: Kanat sesi için Web Audio API. <audio> öğesinde seekTo(0)+play() mobil tarayıcıda ana
+// thread'i kilitleyip kare düşürüyordu. Sesler bir kez çözülür (AudioBuffer), her çırpışta
+// sadece hafif bir kaynak düğümü başlatılır.
+let webCtx = null;
+let webGain = null;
+let webBuffers = [];
+const webFlapVolume = () => (FLAP_VOLUME * settings.sfxLevel) / MAX_LEVEL;
+
+async function initWebFlaps() {
+  try {
+    const AC = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+    if (!AC) return;
+    webCtx = new AC();
+    webGain = webCtx.createGain();
+    webGain.gain.value = webFlapVolume();
+    webGain.connect(webCtx.destination);
+    webBuffers = await Promise.all(FLAP_FILES.map(async (f) => {
+      const res = await fetch(Asset.fromModule(f).uri);
+      const arr = await res.arrayBuffer();
+      return new Promise((ok, fail) => webCtx.decodeAudioData(arr, ok, fail));
+    }));
+  } catch (e) {
+    webCtx = null; webGain = null; webBuffers = []; // olmazsa eski yönteme düşer
+  }
+}
+
 // Ses ile ilgili hiçbir hata oyunu çökertmesin
 const safe = (fn) => { try { return fn(); } catch (e) { return undefined; } };
 const emit = () => listeners.forEach((l) => l({ ...settings }));
@@ -37,6 +64,7 @@ const musicAudible = () => settings.music && settings.musicLevel > 0;
 function applyVolumes() {
   if (music) safe(() => { music.volume = (MUSIC_VOLUME * settings.musicLevel) / MAX_LEVEL; });
   flaps.forEach((p) => safe(() => { p.volume = (FLAP_VOLUME * settings.sfxLevel) / MAX_LEVEL; }));
+  if (webGain) safe(() => { webGain.gain.value = webFlapVolume(); });
 }
 
 function applyMusic() {
@@ -63,6 +91,7 @@ export async function initAudio() {
   try {
     await setAudioModeAsync({ playsInSilentMode: true, interruptionMode: 'mixWithOthers', shouldPlayInBackground: false });
   } catch (e) {}
+  if (Platform.OS === 'web') initWebFlaps();
   try {
     music = createAudioPlayer(MUSIC_FILE);
     music.loop = true;
@@ -79,6 +108,7 @@ export async function initAudio() {
     // Tarayıcılar, kullanıcı sayfaya ilk dokunana/tıklayana kadar sesi engeller
     if (typeof document !== 'undefined') {
       const unlock = () => {
+        if (webCtx && webCtx.state === 'suspended') safe(() => webCtx.resume());
         if (musicAudible() && appActive && !safe(() => music.playing)) safe(() => music.play());
       };
       ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach((ev) =>
@@ -92,7 +122,19 @@ export async function initAudio() {
 
 // Kanat çırpma sesi (efektler kapalıysa veya seviye 0 ise çalmaz)
 export function playFlap() {
-  if (!settings.sfx || settings.sfxLevel === 0 || !flaps.length) return;
+  if (!settings.sfx || settings.sfxLevel === 0) return;
+  if (Platform.OS === 'web' && webCtx && webBuffers.length) {
+    safe(() => {
+      if (webCtx.state === 'suspended') webCtx.resume();
+      const src = webCtx.createBufferSource();
+      src.buffer = webBuffers[flapIdx];
+      flapIdx = (flapIdx + 1) % webBuffers.length;
+      src.connect(webGain);
+      src.start(0);
+    });
+    return;
+  }
+  if (!flaps.length) return;
   const p = flaps[flapIdx];
   flapIdx = (flapIdx + 1) % flaps.length;
   safe(() => {
