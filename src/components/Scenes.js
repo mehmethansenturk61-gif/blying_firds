@@ -1,5 +1,5 @@
 import React, { memo, useRef, useEffect } from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Animated, Easing, Platform } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect, Circle, Ellipse, Path, Polygon, G, Line } from 'react-native-svg';
 import { WORLD_H as H, LAYOUT } from '../constants/config';
 
@@ -468,7 +468,7 @@ const BalloonSprite = memo(({ b, s }) => {
   );
 });
 const BalloonField = memo(({ s, scroll }) => (
-  <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * 0.2) % 1800) * s }] }}>
+  <View pointerEvents="none" style={[{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * 0.2) % 1800) * s }] }, WEB_LAYER]}>
     {[0, 1].map((cp) => KB_BALLOONS.map((b, i) => (
       <View key={`${cp}-${i}`} style={{ position: 'absolute', left: (b[0] + cp * 1800) * s, top: b[1] * s }}>
         <BalloonSprite b={b} s={s} />
@@ -987,8 +987,18 @@ const LayerArt = memo(({ id, index, ground, s }) => {
   );
 });
 
+// WEB OPTİMİZASYONU: willChange, tarayıcıya katmanı ayrı bir GPU yüzeyi olarak tutmasını söyler;
+// böylece kaydırırken binlerce SVG öğesi her karede yeniden boyanmaz, sadece yüzey kaydırılır.
+const WEB_LAYER = Platform.OS === 'web' ? { willChange: 'transform', backfaceVisibility: 'hidden' } : null;
+
 const Layer = ({ id, index, ground, factor, s, scroll }) => (
-  <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * factor) % (ART[id].tile || TILE)) * s }] }}>
+  <View
+    pointerEvents="none"
+    style={[
+      { position: 'absolute', left: 0, top: 0, transform: [{ translateX: -((scroll * factor) % (ART[id].tile || TILE)) * s }] },
+      WEB_LAYER,
+    ]}
+  >
     <LayerArt id={id} index={index} ground={ground} s={s} />
   </View>
 );
